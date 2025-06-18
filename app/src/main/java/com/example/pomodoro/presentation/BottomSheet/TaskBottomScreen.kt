@@ -12,14 +12,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pomodoro.presentation.BottomSheet.Components.DatePickerEditText
 import com.example.pomodoro.presentation.BottomSheet.Components.TaskEdittext
 
-@SuppressLint("UnrememberedMutableState")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Task_BottomSheet(viewmodel: TaskBottomSheetViewModel) {
+fun Task_BottomSheet(  viewmodel: TaskBottomSheetViewModel ) {
+
     val state by viewmodel.TaskBottomSheetState.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (state.isSheetVisible) {
@@ -38,6 +41,7 @@ fun TaskBottomSheetContent(viewmodel: TaskBottomSheetViewModel) {
         }
         Spacer(Modifier.height(10.dp))
 
+
         DatePickerEditText { viewmodel.action(TaskBottomEvents.OnDateChange(it)) }
 
         Spacer(Modifier.height(10.dp))
@@ -46,6 +50,19 @@ fun TaskBottomSheetContent(viewmodel: TaskBottomSheetViewModel) {
             viewmodel.action(TaskBottomEvents.OnDurationChange(it.toInt()))
         }
 
+
     }
 
+
+
+
 }
+
+@Preview
+@Composable
+fun PreviewTaskBottomSheet() {
+    TaskBottomSheetContent(TaskBottomSheetViewModel())
+
+}
+
+

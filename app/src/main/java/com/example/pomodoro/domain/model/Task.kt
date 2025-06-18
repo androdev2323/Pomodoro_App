@@ -10,7 +10,7 @@ import com.example.pomodoro.local.TypeConvertors.DateTypeConvertor
 @TypeConverters(DateTypeConvertor::class)
  data class Task(
  @PrimaryKey(autoGenerate = true)
- val taskid:Long,
+ val taskid:Long=0L,
  val name:String,
  val task_date:Long,
  val duration:Int,

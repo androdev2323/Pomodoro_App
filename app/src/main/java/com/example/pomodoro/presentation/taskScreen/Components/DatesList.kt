@@ -21,14 +21,14 @@ fun DateSelectItem(date: CalendarUi.Date) {
     Card(
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
         colors=CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = if(date.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
         )
     ) {
         Column(
             modifier = Modifier
                 .padding(4.dp)
-                .height(50.dp)
-                .width(50.dp)
+                .height(30.dp)
+                .width(30.dp)
         ) {
             Text(
                 text = date.day,
@@ -36,7 +36,7 @@ fun DateSelectItem(date: CalendarUi.Date) {
                 style = MaterialTheme.typography.bodySmall
             )
             Text(
-                text = date.date.toString(),
+                text = date.date.dayOfMonth.toString(),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodySmall,
             )

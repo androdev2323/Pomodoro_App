@@ -1,5 +1,6 @@
 package com.example.pomodoro.presentation.HomeScreen.Entity
 
+import android.util.Log
 import java.time.DayOfWeek
 
 import java.time.LocalDate
@@ -18,13 +19,14 @@ class CalendarDataSource(){
         val firstdayofweek = starDate.with(DayOfWeek.MONDAY)
         val enddayofweek = firstdayofweek.plusDays(7)
         val getdatesinbetween=getinbetween(firstdayofweek,enddayofweek)
+        Log.d("dates",enddayofweek.toString())
         return getdatesinbetween
 
     }
     fun getinbetween(startDate: LocalDate, endDate:LocalDate):List<LocalDate>{
         val numofdays=ChronoUnit.DAYS.between(startDate,endDate)
         return Stream.iterate(startDate){stardate->
-                startDate.plusDays(1)
+                stardate.plusDays(1)
         }
             .limit(numofdays)
             .collect(Collectors.toList())
