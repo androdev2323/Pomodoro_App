@@ -1,7 +1,7 @@
-package com.example.pomodoro.local.TypeConvertors
+package com.example.pomodoro.Data.local.TypeConvertors
 
 import androidx.room.TypeConverter
-import com.example.pomodoro.local.ShiftType
+import com.example.pomodoro.Data.local.ShiftType
 
 class ShiftTypeConvertor {
     @TypeConverter

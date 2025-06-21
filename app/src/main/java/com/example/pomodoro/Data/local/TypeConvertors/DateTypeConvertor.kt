@@ -1,4 +1,4 @@
-package com.example.pomodoro.local.TypeConvertors
+package com.example.pomodoro.Data.local.TypeConvertors
 
 import androidx.room.TypeConverter
 import java.text.SimpleDateFormat

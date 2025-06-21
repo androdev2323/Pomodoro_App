@@ -4,8 +4,13 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,21 +26,23 @@ import com.example.pomodoro.presentation.BottomSheet.Components.TaskEdittext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Task_BottomSheet(  viewmodel: TaskBottomSheetViewModel ) {
+fun Task_BottomSheet(viewmodel: TaskBottomSheetViewModel) {
 
     val state by viewmodel.TaskBottomSheetState.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (state.isSheetVisible) {
-        ModalBottomSheet(onDismissRequest = { viewmodel.action(TaskBottomEvents.OnHideBottomSheet) },
-            sheetState=sheetState) {
-                          TaskBottomSheetContent(viewmodel)
+        ModalBottomSheet(
+            onDismissRequest = { viewmodel.action(TaskBottomEvents.OnHideBottomSheet) },
+            sheetState = sheetState
+        ) {
+            TaskBottomSheetContent(viewmodel)
         }
     }
 }
 
 @Composable
 fun TaskBottomSheetContent(viewmodel: TaskBottomSheetViewModel) {
-    Column() {
+    Column(modifier = Modifier.padding(10.dp)) {
         TaskEdittext(title = "Title", hint = "Task title") {
             viewmodel.action(TaskBottomEvents.OnTaskNameChange(it))
         }
@@ -49,11 +56,17 @@ fun TaskBottomSheetContent(viewmodel: TaskBottomSheetViewModel) {
         TaskEdittext(title = "Duration", hint = "Task Duration") {
             viewmodel.action(TaskBottomEvents.OnDurationChange(it.toInt()))
         }
+        Spacer(Modifier.height(10.dp))
+        Button(
+            onClick = { viewmodel.action(TaskBottomEvents.OnSaveTask) },
+            modifier = Modifier.padding(10.dp),
+            shape = RoundedCornerShape(size = 10.dp)
+        ) {
+            Text("Save")
+        }
 
 
     }
-
-
 
 
 }

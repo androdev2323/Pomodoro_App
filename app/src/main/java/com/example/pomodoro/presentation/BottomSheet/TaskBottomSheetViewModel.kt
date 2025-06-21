@@ -1,10 +1,7 @@
 package com.example.pomodoro.presentation.BottomSheet
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.pomodoro.domain.model.Task
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.pomodoro.Data.local.Entity.Task
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +43,7 @@ class TaskBottomSheetViewModel @Inject constructor() : ViewModel() {
                     name = _TaskBottomSheetState.value.taskname,
                     task_date = _TaskBottomSheetState.value.date,
                     duration = _TaskBottomSheetState.value.duration,
-                    totatshifts = (_TaskBottomSheetState.value.duration / 0.5).toInt(),
+                    totatshifts = (_TaskBottomSheetState.value.duration / 0.5),
                     )
 
 

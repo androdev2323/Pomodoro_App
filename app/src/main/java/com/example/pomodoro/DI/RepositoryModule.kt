@@ -1,5 +1,7 @@
 package com.example.pomodoro.DI
 
+import com.example.pomodoro.domain.repository.taskrepo
+import com.example.pomodoro.Data.local.repository.taskrepoImpl
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarDataSource
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarRepoImpl
 import com.example.pomodoro.presentation.HomeScreen.Repository.CalednarRepo
@@ -23,5 +25,11 @@ object RepositoryModule {
     @Singleton
     fun provideCalendarRepo(): CalednarRepo {
         return CalendarRepoImpl(CalendarDataSource());
+    }
+
+    @Provides
+    @Singleton
+    fun providesTaskRepo(): taskrepo {
+        return taskrepoImpl()
     }
 }
