@@ -1,5 +1,6 @@
 package com.example.pomodoro.domain.repository
 
+import android.os.NetworkOnMainThreadException
 import com.example.pomodoro.Data.local.Entity.Task
 import com.example.pomodoro.Util.NetworkResult
 import kotlinx.coroutines.flow.Flow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface taskrepo {
 
     fun gettaskbydate(date:Long): Flow<NetworkResult<List<Task>>>
+    fun getalltask(): Flow<List<Task>>
     suspend fun insertask(task: Task)
     suspend fun updatetask(
         id: Int,

@@ -13,10 +13,10 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun TaskEdittext( title:String, hint:String,onValueChange: (String) -> Unit){
+fun TaskEdittext( title:String, hint:String,value:String,onValueChange: (String) -> Unit){
    Column(){
      Text(text = title, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
        Spacer(modifier = Modifier.height(5.dp))
-       OutlinedTextField(value = "", onValueChange ={ onValueChange(it) } )
+       OutlinedTextField(value =value , onValueChange ={ onValueChange(it) } )
    }
 }

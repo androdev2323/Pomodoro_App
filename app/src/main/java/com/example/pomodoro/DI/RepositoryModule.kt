@@ -1,10 +1,12 @@
 package com.example.pomodoro.DI
 
+import com.example.pomodoro.Data.local.Dao.TaskDao
 import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.Data.local.repository.taskrepoImpl
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarDataSource
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarRepoImpl
 import com.example.pomodoro.presentation.HomeScreen.Repository.CalednarRepo
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,15 +23,15 @@ object RepositoryModule {
         return CalendarDataSource()
     }
 
-    @Provides
+ @Provides
     @Singleton
-    fun provideCalendarRepo(): CalednarRepo {
-        return CalendarRepoImpl(CalendarDataSource());
+    fun provideCalendarRepo(calendarDataSource: CalendarDataSource): CalednarRepo {
+        return CalendarRepoImpl(calendarDataSource);
     }
 
-    @Provides
+   @Provides
     @Singleton
-    fun providesTaskRepo(): taskrepo {
-        return taskrepoImpl()
+    fun providesTaskRepo(taskDao: TaskDao): taskrepo {
+        return taskrepoImpl(taskDao)
     }
 }

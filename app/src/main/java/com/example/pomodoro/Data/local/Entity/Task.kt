@@ -4,16 +4,16 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.pomodoro.Data.PomdoroContract
-import com.example.pomodoro.Data.local.TypeConvertors.DateTypeConvertor
+
+import java.time.LocalDate
 
 
-@Entity()
-@TypeConverters(DateTypeConvertor::class)
+@Entity(tableName = "Task")
  data class Task(
  @PrimaryKey(autoGenerate = true)
  val taskid:Long=0L,
  val name:String,
- val task_date:Long,
+ val task_date:Long ,
  val duration:Int,
  val totatshifts:Int,
   val completedshifts:Int=0,

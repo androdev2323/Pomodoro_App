@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
+import com.example.pomodoro.Util.TimeFormatter
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -38,8 +39,8 @@ fun DatePickerEditText(onDateSelected: (Long) -> Unit) {
         })
         if (isdatepickervsible) {
             datePicker(onDateSelected = {
-                selectedDate = it?.let { it1 -> formatDate(it1) }!!
-               it?.let { onDateSelected(it) }
+                selectedDate = it?.let { TimeFormatter.longtoString(it) }!!
+                 onDateSelected(it)
             }, onDismiss = { isdatepickervsible = false })
         }
     }

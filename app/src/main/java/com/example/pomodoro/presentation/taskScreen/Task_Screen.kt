@@ -1,9 +1,14 @@
 package com.example.pomodoro.presentation.HomeScreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -23,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomEvents
@@ -55,28 +61,31 @@ fun TaskScreen(
     ) {
 
         Column(modifier = Modifier.padding(it)) {
-            when (state) {
-                is HomeScreenState.Success -> {
-                    dateRow(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.CenterHorizontally),
-                        Month = "April", dates = state.dates.visbledates,
-                        onArrowLeftClicked = {},
-                    ) { }
+
+
+            dateRow(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally),
+                Month = "April", dates = state.dates!!.visbledates,
+                onArrowLeftClicked = {},
+            ) { }
+
+
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(items = state.taskList, key = { it.taskid }) {
+                    Text(text = it.name)
                 }
-
-                is HomeScreenState.Error -> {}
-                is HomeScreenState.Loadng -> {}
-
-                else -> {}
             }
+        }
         Task_BottomSheet(viewmodel = taskbottomviewmodel)
+        Spacer(modifier = Modifier.height(50.dp))
+    }
 
         }
-    }
-}
+
+
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

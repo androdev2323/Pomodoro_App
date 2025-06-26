@@ -9,5 +9,7 @@ sealed class HomeScreenEvents {
         val lastselectedDate: LocalDate
     ) : HomeScreenEvents()
 
+    data class GetTasks(val date: LocalDate) : HomeScreenEvents()
+
 
 }

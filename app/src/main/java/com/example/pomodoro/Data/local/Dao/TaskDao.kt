@@ -10,8 +10,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-    @Query("Select * from Task t where t.task_date == :date")
+    @Query("Select * from Task WHERE task_date  =:date")
     fun getaskbydate(date: Long): Flow<List<Task>>
+
+
+    @Query("Select * from Task ")
+    fun getalltask(): List<Task>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
    suspend fun insertask(task: Task)

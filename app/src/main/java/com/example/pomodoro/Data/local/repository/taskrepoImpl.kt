@@ -1,5 +1,6 @@
 package com.example.pomodoro.Data.local.repository
 
+import android.util.Log
 import com.example.pomodoro.Data.local.Dao.TaskDao
 import com.example.pomodoro.Data.local.Entity.Task
 import com.example.pomodoro.Util.NetworkResult
@@ -7,15 +8,25 @@ import com.example.pomodoro.domain.repository.taskrepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class taskrepoImpl(val taskDao: TaskDao):taskrepo {
-    override fun gettaskbydate(date: Long): Flow<NetworkResult<List<Task>>> {
-    return taskDao.getaskbydate(date).map<List<Task>, NetworkResult<List<Task>>>{
+    override fun gettaskbydate(date: Long): Flow<NetworkResult<List<Task>>>{
+          return taskDao.getaskbydate(date).map { it->
               NetworkResult.Success(it)
-    }.catch {
-            emit(NetworkResult.Error(message = it.message))
+          }.catch {
+              NetworkResult.Error<List<Task>>(it.message.toString())
+          }
+
+    }
+
+    override fun getalltask(): Flow<List<Task>> {
+        val list = taskDao.getalltask()
+
+        return flow {
+            emit(list)
         }
     }
 
