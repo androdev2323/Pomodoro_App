@@ -24,6 +24,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".presentation.StopWatch.Data.service.PomodoroTimerService"
+            android:foregroundServiceType="specialUse">
+
+        </service>
     </application>
 
 </manifest>
