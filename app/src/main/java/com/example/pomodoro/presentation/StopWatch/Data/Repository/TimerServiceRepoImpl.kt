@@ -8,7 +8,7 @@ import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
 import com.example.pomodoro.presentation.StopWatch.Domain.Repository.TimerServiceRepo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-
+import kotlinx.coroutines.flow.filterNotNull
 
 
 class TimerServiceRepoImpl(
@@ -17,7 +17,7 @@ class TimerServiceRepoImpl(
     val timerStatusManager: TimerStatusManager
 ):TimerServiceRepo{
     override fun getTimerState(): Flow<TimerState> {
-       return timerStatusManager.timerState
+       return timerStatusManager.timerState.filterNotNull()
     }
 
     override fun startTimer() {

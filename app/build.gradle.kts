@@ -65,6 +65,7 @@ dependencies {
 
     implementation(libs.room.ktx)
    implementation(libs.room.runtime)
+    implementation(libs.androidx.ui.text.google.fonts)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

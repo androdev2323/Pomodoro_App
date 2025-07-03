@@ -15,6 +15,7 @@ lifeCycleService = "2.8.5"
 hilt = "2.56.2"
 hiltNavigationCompose = "1.2.0"
 ksp="2.1.20-2.0.1"
+uiTextGoogleFonts = "1.8.3"
 
 
 [libraries]
@@ -41,6 +42,7 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCom
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommon" }
 room-ktx= {module = "androidx.room:room-ktx", version.ref = "roomCommon" }
 lifecycle-service={group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifeCycleService" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 
 [plugins]

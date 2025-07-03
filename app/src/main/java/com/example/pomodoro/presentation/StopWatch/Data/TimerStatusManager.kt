@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 @Singleton
 class  TimerStatusManager @Inject constructor(){
-    private val _timerstate = MutableStateFlow<TimerState>(TimerState.idle)
+    private val _timerstate = MutableStateFlow<TimerState?>(null)
     val timerState = _timerstate.asStateFlow()
 
     fun updatestate(state:TimerState){
