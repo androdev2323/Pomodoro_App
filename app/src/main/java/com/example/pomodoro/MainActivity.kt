@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pomodoro.presentation.HomeScreen.TaskScreen
 import com.example.pomodoro.presentation.HomeScreen.Task_Screen
+import com.example.pomodoro.presentation.StopWatch.StopwatchScreen
 import com.example.pomodoro.ui.theme.PomodoroTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,10 +24,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PomodoroTheme {
+             Scaffold {
+                 StopwatchScreen(modifier = Modifier.padding(it))
 
-                  Task_Screen()
-
-
+             }
             }
         }
     }

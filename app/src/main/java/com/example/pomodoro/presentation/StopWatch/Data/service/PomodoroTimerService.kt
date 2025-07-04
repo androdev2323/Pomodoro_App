@@ -1,12 +1,14 @@
 package com.example.pomodoro.presentation.StopWatch.Data.service
 
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigator
 import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.presentation.StopWatch.Data.TimerStatusManager
 import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,6 +16,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 private  const val TICK_INTERVAL = 1000L
+@AndroidEntryPoint
 class PomodoroTimerService: LifecycleService(){
 
     companion object{
@@ -45,19 +48,21 @@ class PomodoroTimerService: LifecycleService(){
         return START_STICKY
     }
     private fun starttimer(duration:Long,id:Int){
-        timerjob?.cancel()
-        val startime=System.currentTimeMillis()
-        timerjob = lifecycleScope.launch(Dispatchers.IO){
-            timerstatemanager.updatestate(TimerState.Running(duration))
-            while(isActive){
-                val elspasedtime = (System.currentTimeMillis() - startime).coerceAtLeast(0)
-                val updatetime = duration - elspasedtime.coerceAtLeast(0)
-                timerstatemanager.updatestate(TimerState.Running(updatetime))
-                if(updatetime<=0){
-                    break;
-                }
 
-               delay(TICK_INTERVAL)
+        timerjob?.cancel()
+
+        timerjob = lifecycleScope.launch(Dispatchers.Default){
+            var updatetime = duration
+            timerstatemanager.updatestate(TimerState.Running(updatetime))
+            while( updatetime>= 0 && isActive){
+
+
+                Log.d("TimerService", "Loop Tick! Remaining MS: $updatetime")
+                timerstatemanager.updatestate(TimerState.Running(updatetime))
+                 delay(TICK_INTERVAL)
+                updatetime-=TICK_INTERVAL
+
+
             }
             timerstatemanager.updatestate(TimerState.Finished)
 

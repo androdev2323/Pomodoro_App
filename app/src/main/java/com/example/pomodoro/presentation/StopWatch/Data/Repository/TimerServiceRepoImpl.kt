@@ -4,28 +4,38 @@ import android.content.Context
 import android.content.Intent
 import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.presentation.StopWatch.Data.TimerStatusManager
+import com.example.pomodoro.presentation.StopWatch.Data.service.PomodoroTimerService
 import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
 import com.example.pomodoro.presentation.StopWatch.Domain.Repository.TimerServiceRepo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
+import javax.inject.Inject
 
 
-class TimerServiceRepoImpl(
-    val taskrepo: taskrepo,
-  @ApplicationContext  val  context: Context,
-    val timerStatusManager: TimerStatusManager
+class TimerServiceRepoImpl @Inject constructor(
+    val  context: Context,
+   val timerStatusManager: TimerStatusManager
 ):TimerServiceRepo{
     override fun getTimerState(): Flow<TimerState> {
        return timerStatusManager.timerState.filterNotNull()
     }
 
-    override fun startTimer() {
-        TODO("Not yet implemented")
+    override fun startTimer(duration: Long) {
+       val intent = Intent(context, PomodoroTimerService::class.java).apply {
+              this.action = PomodoroTimerService.ACTION_START_TIMER
+            this.putExtra(PomodoroTimerService.REMAINING_TIME,duration)
+        }
+       context.startService(intent)
     }
 
+
     override fun pauseTimer() {
-      context.startForegroundService(Intent())
+        val intent = Intent(context, PomodoroTimerService::class.java).apply {
+            this.action = PomodoroTimerService.ACTION_PAUSE_TIMER
+
+        }
+      context.startService(intent)
     }
 
 
