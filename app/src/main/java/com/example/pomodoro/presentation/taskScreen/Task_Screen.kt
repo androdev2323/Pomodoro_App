@@ -99,12 +99,12 @@ fun TopBar(
         title = { Text(text = text) },
         actions = {
             IconButton(onClick = OnAddTaskClicked) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "")
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "", tint = MaterialTheme.colorScheme.secondary)
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            scrolledContainerColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         scrollBehavior = scrollBehavior,
         modifier = modifier

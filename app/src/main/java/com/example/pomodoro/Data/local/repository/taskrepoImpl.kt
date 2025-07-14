@@ -22,12 +22,10 @@ class taskrepoImpl(val taskDao: TaskDao):taskrepo {
 
     }
 
-    override fun getalltask(): Flow<List<Task>> {
-        val list = taskDao.getalltask()
+    override fun getTaskById(id: Int): Flow<Task> {
+      return taskDao.getTaskById(id)
 
-        return flow {
-            emit(list)
-        }
+
     }
 
     override suspend fun insertask(task: Task) {

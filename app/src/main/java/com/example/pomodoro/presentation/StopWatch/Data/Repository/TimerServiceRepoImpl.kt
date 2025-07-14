@@ -10,23 +10,25 @@ import com.example.pomodoro.presentation.StopWatch.Domain.Repository.TimerServic
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 
 class TimerServiceRepoImpl @Inject constructor(
-    val  context: Context,
-   val timerStatusManager: TimerStatusManager
-):TimerServiceRepo{
+    val context: Context,
+    val timerStatusManager: TimerStatusManager
+) : TimerServiceRepo {
     override fun getTimerState(): Flow<TimerState> {
-       return timerStatusManager.timerState.filterNotNull()
+        return timerStatusManager.timerState.filterNotNull()
+
     }
 
     override fun startTimer(duration: Long) {
-       val intent = Intent(context, PomodoroTimerService::class.java).apply {
-              this.action = PomodoroTimerService.ACTION_START_TIMER
-            this.putExtra(PomodoroTimerService.REMAINING_TIME,duration)
+        val intent = Intent(context, PomodoroTimerService::class.java).apply {
+            this.action = PomodoroTimerService.ACTION_START_TIMER
+            this.putExtra(PomodoroTimerService.REMAINING_TIME, duration)
         }
-       context.startService(intent)
+        context.startService(intent)
     }
 
 
@@ -35,10 +37,8 @@ class TimerServiceRepoImpl @Inject constructor(
             this.action = PomodoroTimerService.ACTION_PAUSE_TIMER
 
         }
-      context.startService(intent)
+        context.startService(intent)
     }
-
-
 
 
 }

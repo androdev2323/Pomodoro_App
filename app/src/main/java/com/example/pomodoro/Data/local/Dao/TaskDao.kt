@@ -14,8 +14,8 @@ interface TaskDao {
     fun getaskbydate(date: Long): Flow<List<Task>>
 
 
-    @Query("Select * from Task ")
-    fun getalltask(): List<Task>
+    @Query("Select * from Task where taskid =:id ")
+    fun getTaskById(id: Int): Flow<Task>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
    suspend fun insertask(task: Task)

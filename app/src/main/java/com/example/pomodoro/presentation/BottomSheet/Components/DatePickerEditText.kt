@@ -34,7 +34,7 @@ fun DatePickerEditText(onDateSelected: (Long) -> Unit) {
         Text(text = "Date", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
         OutlinedTextField(value = selectedDate, onValueChange = {}, trailingIcon = {
             IconButton(onClick = { isdatepickervsible = true }) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Select Date")
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Select Date", tint = MaterialTheme.colorScheme.secondary)
             }
         })
         if (isdatepickervsible) {

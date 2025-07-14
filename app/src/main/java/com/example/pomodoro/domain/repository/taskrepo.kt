@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface taskrepo {
 
     fun gettaskbydate(date:Long): Flow<NetworkResult<List<Task>>>
-    fun getalltask(): Flow<List<Task>>
+    fun getTaskById(id:Int): Flow<Task>
     suspend fun insertask(task: Task)
     suspend fun updatetask(
         id: Int,

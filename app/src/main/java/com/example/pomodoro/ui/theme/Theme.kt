@@ -259,7 +259,7 @@ val unspecified_scheme = ColorFamily(
 fun PomodoroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
 
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable() () -> Unit
 ) {
     val colorScheme = when {
@@ -268,8 +268,8 @@ fun PomodoroTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> highContrastDarkColorScheme
-        else -> highContrastLightColorScheme
+        darkTheme -> darkScheme
+        else -> lightScheme
     }
 
     MaterialTheme(

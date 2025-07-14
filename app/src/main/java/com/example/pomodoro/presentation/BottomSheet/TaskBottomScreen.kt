@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ fun Task_BottomSheet(viewmodel: TaskBottomSheetViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (state.isSheetVisible) {
         ModalBottomSheet(
+            containerColor= MaterialTheme.colorScheme.surfaceVariant,
             onDismissRequest = { viewmodel.action(TaskBottomEvents.OnHideBottomSheet) },
             sheetState = sheetState
         ) {
@@ -63,6 +66,7 @@ fun TaskBottomSheetContent(viewmodel: TaskBottomSheetViewModel) {
         }
         Spacer(Modifier.height(10.dp))
         Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             onClick = { viewmodel.action(TaskBottomEvents.OnSaveTask) },
             modifier = Modifier.padding(10.dp),
             shape = RoundedCornerShape(size = 10.dp)

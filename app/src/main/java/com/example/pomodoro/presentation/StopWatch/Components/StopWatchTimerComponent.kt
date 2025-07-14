@@ -1,12 +1,20 @@
 package com.example.pomodoro.presentation.StopWatch.Components
 
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -26,10 +34,15 @@ import kotlin.math.sin
 @Composable
 fun StopwatchTimerComponent(
     modifier: Modifier = Modifier,
+    time: String,
+    progress: Long,
 
-    progressvalue: Int,
+    ) {
+    mapColors()
+    val progressvalue = animateFloatAsState(targetValue = progress.toFloat(),
+        animationSpec = tween(durationMillis = 1000, delayMillis = 0, easing = LinearEasing)
+    )
 
-) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -94,7 +107,7 @@ fun StopwatchTimerComponent(
                     drawArc(
                         color = primarycolor,
                         startAngle = -90f,
-                        sweepAngle = (360f / 100) * progressvalue,
+                        sweepAngle = (360f / 100) * progressvalue.value,
                         useCenter = false,
                         style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
                         topLeft = Offset(x = centerX - radius, y = centerY - radius),
@@ -104,7 +117,8 @@ fun StopwatchTimerComponent(
 
                     rotate(degrees = -90f, pivot = center) {
                         tickPoints.forEachIndexed { i, (start, end) ->
-                            val color = if (i < progressvalue) primarycolor else primarycolor.copy(alpha = 0.3f)
+                            val color =
+                                if (i < progressvalue.value) primarycolor else primarycolor.copy(alpha = 0.3f)
                             drawLine(
                                 color = color,
                                 start = start,
@@ -119,7 +133,7 @@ fun StopwatchTimerComponent(
     ) {
 
         Text(
-            text = "20:24",
+            text = time,
             style = MaterialTheme.typography.titleLarge.copy(fontSize = 30.sp),
             color = MaterialTheme.colorScheme.onSecondary
         )
@@ -131,15 +145,16 @@ fun StopwatchTimerComponent(
 @Composable
 fun PreviewStopWatchTimerComponent() {
     PomodoroTheme {
-        mapColors()
 
-        StopwatchTimerComponent(Modifier.size(200.dp), 70)
+
+        StopwatchTimerComponent(Modifier.size(200.dp), "20:24", 50)
     }
 }
 
 private object MappedColors {
     var primary: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified
-    var secondary: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified
+    var secondary: androidx.compose.ui.graphics.Color =
+        androidx.compose.ui.graphics.Color.Unspecified
 }
 
 @Composable

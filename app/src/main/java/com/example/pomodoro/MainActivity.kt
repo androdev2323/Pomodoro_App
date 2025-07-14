@@ -24,10 +24,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PomodoroTheme {
-             Scaffold {
-                 StopwatchScreen(modifier = Modifier.padding(it))
+                Scaffold {
+                    StopwatchScreen(modifier = Modifier.padding(it))
 
-             }
+
+                }
             }
         }
     }
