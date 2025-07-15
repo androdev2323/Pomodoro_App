@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +26,7 @@ class StopWatchViewmodel @Inject constructor(val serviceRepo: TimerServiceRepo,v
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val state: StateFlow<StopwatchScreenState> = taskrepo.getTaskById(9).flatMapLatest { task ->
+    val state: StateFlow<StopwatchScreenState> = taskrepo.getTaskById(11).flatMapLatest { task ->
         serviceRepo.getTimerState().map { timerState ->
             when (timerState) {
                 is TimerState.Finished -> StopwatchScreenState(taskitem = task, timerState = StopWatchState.Finished)
@@ -34,7 +35,7 @@ class StopWatchViewmodel @Inject constructor(val serviceRepo: TimerServiceRepo,v
             }
         }.onStart {
 
-            emit(StopwatchScreenState(taskitem = task, timerState = StopWatchState.Pause((task.remaining_time * 1000) .toLong())))
+            emit(StopwatchScreenState(taskitem = task, timerState = StopWatchState.Pause((task.remaining_time) .toLong())))
         }
     }.stateIn(
         scope = viewModelScope,
@@ -47,5 +48,10 @@ class StopWatchViewmodel @Inject constructor(val serviceRepo: TimerServiceRepo,v
 
     fun onResumed(time: Long) {
         serviceRepo.startTimer(time)
+    }
+    fun onFinished() {
+        viewModelScope.launch {
+            taskrepo.updatetask(state.value.taskitem!!)
+        }
     }
 }

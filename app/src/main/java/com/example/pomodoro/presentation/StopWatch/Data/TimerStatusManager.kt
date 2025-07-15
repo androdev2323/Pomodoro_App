@@ -11,7 +11,7 @@ class  TimerStatusManager @Inject constructor(){
     private val _timerstate = MutableStateFlow<TimerState?>(null)
     val timerState = _timerstate.asStateFlow()
 
-    fun updatestate(state:TimerState){
+    fun updatestate(state: TimerState?){
         _timerstate.value = state
     }
 }

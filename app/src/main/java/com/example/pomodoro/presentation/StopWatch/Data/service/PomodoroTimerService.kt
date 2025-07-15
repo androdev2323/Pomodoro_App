@@ -4,8 +4,6 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigator
-import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.presentation.StopWatch.Data.TimerStatusManager
 import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,6 +85,9 @@ class PomodoroTimerService: LifecycleService(){
 
    if(timerstatemanager.timerState.value is TimerState.Running){
        timerstatemanager.updatestate(TimerState.Paused((timerstatemanager.timerState.value as TimerState.Running).time))
+   }
+        else{
+            timerstatemanager.updatestate(null)
    }
         timerjob?.cancel()
         super.onDestroy()

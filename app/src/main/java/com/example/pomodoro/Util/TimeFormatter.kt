@@ -23,6 +23,6 @@ private var format = SimpleDateFormat("yyyy-MM-dd", curr)
         val minutes = seconds/60
         val seco = seconds % 60
 
-        return String.format("%02d:%02d", minutes, seconds)
+        return String.format("%02d:%02d", minutes, seco)
     }
 }

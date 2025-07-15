@@ -11,13 +11,9 @@ interface taskrepo {
     fun getTaskById(id:Int): Flow<Task>
     suspend fun insertask(task: Task)
     suspend fun updatetask(
-        id: Int,
-        completedShifts: Int,
-        session_status: String,
-        session_type: String,
-        remaining_time: Int
+       task: Task
     )
    suspend fun updateremainingtime(
-        id: Int, remaining_time: Int
+      task: Task, remaining_time: Int
     )
 }

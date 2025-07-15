@@ -1,6 +1,7 @@
 package com.example.pomodoro.Data.local.repository
 
 import android.util.Log
+import com.example.pomodoro.Data.PomdoroContract
 import com.example.pomodoro.Data.local.Dao.TaskDao
 import com.example.pomodoro.Data.local.Entity.Task
 import com.example.pomodoro.Util.NetworkResult
@@ -33,16 +34,44 @@ class taskrepoImpl(val taskDao: TaskDao):taskrepo {
     }
 
     override suspend fun updatetask(
-        id: Int,
-        completedShifts: Int,
-        session_status: String,
-        session_type: String,
-        remaining_time: Int
+        task:Task
     ) {
-              taskDao.updatetask(id,completedShifts,session_status, session_type, remaining_time)
+        var completedshift = task.completedshifts
+        var currentsessiontype = task.session_type
+        var currentsessionstatus = task.session_status
+        var remaining_time = task.remaining_time
+        if (task.session_type.equals(PomdoroContract.POMODORO_WORK)) {
+            completedshift++;
+        }
+       if(completedshift == task.totatshifts){
+           currentsessionstatus = PomdoroContract.STATUS_COMPLETED
+
+       }
+        if (task.session_type.equals(PomdoroContract.POMODORO_WORK)) {
+            if(completedshift % PomdoroContract.LONGBREAK_SESSIONS == 0){
+                currentsessiontype = PomdoroContract.POMODORO_lONGBREAK
+                remaining_time = PomdoroContract.DEFAULT_LONGBREAKDURATION
+
+            }else{
+                currentsessiontype = PomdoroContract.POMODORO_SHORTBREAK
+                remaining_time = PomdoroContract.DEFAULT_SHORTBREAKDURATION
+            }
+        }
+        else{
+            currentsessiontype = PomdoroContract.POMODORO_WORK
+            remaining_time = PomdoroContract.DEFAULT_WORKDURATION
+        }
+        taskDao.updatetask(
+            task.taskid.toInt(),
+            completedshift,
+            currentsessionstatus,
+            currentsessiontype,
+            remaining_time
+        )
+
     }
 
-    override suspend fun updateremainingtime(id: Int, remaining_time: Int) {
-        taskDao.updateremainingtime(id, remaining_time)
+    override suspend fun updateremainingtime(task:Task, remaining_time: Int) {
+
     }
 }
