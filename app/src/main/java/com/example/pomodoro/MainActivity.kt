@@ -23,29 +23,34 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PomodoroTheme {
-                Scaffold {
-                    StopwatchScreen(modifier = Modifier.padding(it))
+          PomodoroTheme {
+              Scaffold {
+                  StopwatchScreen(modifier = Modifier.padding(it))
 
 
-                }
-            }
-        }
-    }
+              }
+          }
+
+
+
+            /*   Task_Screen()    */
 }
+}
+}
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+Text(
+text = "Hello $name!",
+modifier = modifier
+)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    PomodoroTheme {
-        Greeting("Android")
-    }
+PomodoroTheme {
+Greeting("Android")
+}
 }

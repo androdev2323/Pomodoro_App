@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -32,10 +33,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.LottieComposition
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieAnimatable
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.pomodoro.Data.PomdoroContract
+import com.example.pomodoro.R
 import com.example.pomodoro.Util.TimeFormatter
 import com.example.pomodoro.presentation.StopWatch.Components.StopwatchTimerComponent
 
@@ -70,6 +82,14 @@ fun StopwatchScreenContent(
 ) {
 
     val duration = state.taskitem!!.remaining_time
+    val animationid = if (state.taskitem.session_type == PomdoroContract.POMODORO_SHORTBREAK
+        || state.taskitem.session_type == PomdoroContract.POMODORO_lONGBREAK
+    ) {
+        R.raw.breaktime
+    } else {
+        R.raw.breaktime2
+    }
+
 
 
     val time = when (val timer = state.timerState) {
@@ -87,37 +107,58 @@ fun StopwatchScreenContent(
 
 
     Column(
-        modifier.padding(20.dp).fillMaxSize(),
+        modifier
+            .padding(20.dp)
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         StopwatchTimerComponent(
             modifier = Modifier
-                .size(400.dp)
-                .align(Alignment.CenterHorizontally),
+                .size(350.dp),
             time = TimeFormatter.longtoTime(time),
+            animationid = animationid,
             progress = progress
         )
+
+
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             when (state.timerState) {
                 is StopWatchState.Running -> {
 
                     Spacer(modifier.height(1.dp))
-                    IconButton(onClick = { onPause() }) {
-                        Icon(Icons.Filled.Add, "", tint = MaterialTheme.colorScheme.primary)
+                    IconButton(modifier = Modifier.clip(CircleShape).size(70.dp).background(MaterialTheme.colorScheme.primaryContainer),onClick = { onPause() }) {
+                        Icon(
+
+                            painter = painterResource(R.drawable.ic_pause),
+                            "",
+                            modifier = Modifier.size(25.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
 
                 is StopWatchState.Pause -> {
 
-                    IconButton(onClick = { onResumed(state.timerState.time) }) {
-                        Icon(Icons.Filled.PlayArrow, "", tint = MaterialTheme.colorScheme.primary)
+                    IconButton(  modifier = Modifier.clip(CircleShape).size(70.dp).background(MaterialTheme.colorScheme.primaryContainer),onClick = { onResumed(state.timerState.time) }) {
+                        Icon(
+
+                            painter = painterResource(R.drawable.baseline_play_arrow_24),
+                            "",
+                            modifier = Modifier.size(25.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
 
                 is StopWatchState.Finished -> {
-                    IconButton(onClick = {onFinished()}) {
-                        Icon(Icons.AutoMirrored.Filled.Send, "", tint = MaterialTheme.colorScheme.primary)
+                    IconButton(modifier = Modifier.clip(CircleShape).size(70.dp).background(MaterialTheme.colorScheme.primaryContainer),onClick = { onFinished() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Send,
+                            "",
+                            modifier = Modifier.size(25.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
             }
@@ -125,3 +166,6 @@ fun StopwatchScreenContent(
 
     }
 }
+
+
+
