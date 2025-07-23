@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.pomodoro.presentation.HomeScreen.TaskScreen
 import com.example.pomodoro.presentation.HomeScreen.Task_Screen
 import com.example.pomodoro.presentation.StopWatch.StopwatchScreen
@@ -24,16 +26,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
           PomodoroTheme {
-              Scaffold {
-                  StopwatchScreen(modifier = Modifier.padding(it))
-
+              Scaffold{
+              /*     StopwatchScreen(modifier = Modifier.padding(it)) */
+                    Task_Screen(modifier = Modifier.padding(it))
 
               }
           }
 
 
 
-            /*   Task_Screen()    */
+
 }
 }
 }

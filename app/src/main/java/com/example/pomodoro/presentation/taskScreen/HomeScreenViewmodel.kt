@@ -37,6 +37,13 @@ class HomeScreenViewmodel @Inject constructor(val repo: CalednarRepo, val reposi
         action(events = HomeScreenEvents.GetTasks(date = LocalDate.now()))
 
     }
+    fun onDateClicked(Date: LocalDate){
+       _HomescreenState.update {
+          it.copy(dates = it.dates?.copy(selecteddate = toDate(Date,true),visbledates = it.dates.visbledates.map{
+              it.copy(isSelected = it.date.equals(Date))
+          } ))
+       }
+    }
 
     fun action(events: HomeScreenEvents) {
 

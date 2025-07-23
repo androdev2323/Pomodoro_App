@@ -1,5 +1,6 @@
 package com.example.pomodoro.presentation.HomeScreen.Components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,11 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
+import java.time.LocalDate
 
 @Composable
-fun DateSelectItem(date: CalendarUi.Date) {
+fun DateSelectItem(date: CalendarUi.Date,onClick:(LocalDate) -> Unit) {
     Card(
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+            .clickable { onClick(date.date) },
         colors=CardDefaults.cardColors(
             containerColor = if(date.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
         )
