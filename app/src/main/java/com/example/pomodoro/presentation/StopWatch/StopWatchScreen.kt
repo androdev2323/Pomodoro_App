@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +53,8 @@ import com.example.pomodoro.Data.PomdoroContract
 import com.example.pomodoro.R
 import com.example.pomodoro.Util.TimeFormatter
 import com.example.pomodoro.presentation.StopWatch.Components.StopwatchTimerComponent
+import com.example.pomodoro.presentation.StopWatch.Components.TaskInfoCard
+import com.example.pomodoro.presentation.taskScreen.Components.TaskDetailElement
 
 
 @Composable
@@ -91,7 +96,6 @@ fun StopwatchScreenContent(
     }
 
 
-
     val time = when (val timer = state.timerState) {
         is StopWatchState.Running -> timer.time
         is StopWatchState.Pause -> timer.time
@@ -105,63 +109,100 @@ fun StopwatchScreenContent(
     }
 
 
-
     Column(
-        modifier
-            .padding(20.dp)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 30.dp, horizontal = 5.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        StopwatchTimerComponent(
-            modifier = Modifier
-                .size(350.dp),
-            time = TimeFormatter.longtoTime(time),
-            animationid = animationid,
-            progress = progress
+        TaskInfoCard(
+            tastkTitle = state.taskitem.name,
+            taskDuration = (state.taskitem.duration.toString()),
+            totalSessions = state.taskitem.totatshifts.toString(),
+            completedSessions = state.taskitem.completedshifts.toString()
         )
+        Column(
+            modifier
+                .padding(20.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            StopwatchTimerComponent(
+                modifier = Modifier
+                    .size(350.dp),
+                time = TimeFormatter.longtoTime(time),
+                animationid = animationid,
+                progress = progress
+            )
+            Spacer(Modifier.height(30.dp))
+            Text(
+                text = if (state.taskitem.session_type == PomdoroContract.POMODORO_WORK) {
+                    "Stay focus for ${TimeFormatter.longtoTime(state.taskitem.remaining_time.toLong())}"
+                } else {
+                     "Have chill untill ${TimeFormatter.longtoTime(state.taskitem.remaining_time.toLong())}"
+                },
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(Modifier.height(30.dp))
 
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            when (state.timerState) {
-                is StopWatchState.Running -> {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                when (state.timerState) {
+                    is StopWatchState.Running -> {
 
-                    Spacer(modifier.height(1.dp))
-                    IconButton(modifier = Modifier.clip(CircleShape).size(70.dp).background(MaterialTheme.colorScheme.primaryContainer),onClick = { onPause() }) {
-                        Icon(
+                        Spacer(modifier.height(1.dp))
+                        IconButton(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(70.dp)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            onClick = { onPause() }) {
+                            Icon(
 
-                            painter = painterResource(R.drawable.ic_pause),
-                            "",
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                                painter = painterResource(R.drawable.ic_pause),
+                                "",
+                                modifier = Modifier.size(25.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
-                }
 
-                is StopWatchState.Pause -> {
+                    is StopWatchState.Pause -> {
 
-                    IconButton(  modifier = Modifier.clip(CircleShape).size(70.dp).background(MaterialTheme.colorScheme.primaryContainer),onClick = { onResumed(state.timerState.time) }) {
-                        Icon(
+                        IconButton(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(70.dp)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            onClick = { onResumed(state.timerState.time) }) {
+                            Icon(
 
-                            painter = painterResource(R.drawable.baseline_play_arrow_24),
-                            "",
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                                painter = painterResource(R.drawable.baseline_play_arrow_24),
+                                "",
+                                modifier = Modifier.size(25.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
-                }
 
-                is StopWatchState.Finished -> {
-                    IconButton(modifier = Modifier.clip(CircleShape).size(70.dp).background(MaterialTheme.colorScheme.primaryContainer),onClick = { onFinished() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Send,
-                            "",
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                    is StopWatchState.Finished -> {
+                        IconButton(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(70.dp)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            onClick = { onFinished() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Send,
+                                "",
+                                modifier = Modifier.size(25.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                 }
             }
+
         }
 
     }

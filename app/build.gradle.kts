@@ -80,4 +80,6 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.lottie)
 
+    implementation("androidx.compose.material:material:1.8.3")
+
 }

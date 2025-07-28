@@ -27,11 +27,11 @@ class MainActivity : ComponentActivity() {
         setContent {
           PomodoroTheme {
               Scaffold{
-              /*     StopwatchScreen(modifier = Modifier.padding(it)) */
-                    Task_Screen(modifier = Modifier.padding(it))
+                  StopwatchScreen(modifier = Modifier.padding(it))
+/*    Task_Screen(modifier = Modifier.padding(it)) */
 
-              }
-          }
+}
+}
 
 
 

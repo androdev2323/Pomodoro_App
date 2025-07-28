@@ -1,6 +1,7 @@
 package com.example.pomodoro.presentation.HomeScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Spacer
@@ -47,6 +48,8 @@ import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetContent
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetViewModel
 import com.example.pomodoro.presentation.BottomSheet.Task_BottomSheet
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
+import com.example.pomodoro.presentation.taskScreen.Components.TaskDetailElement
+import com.example.pomodoro.presentation.taskScreen.Components.TaskItemCard
 import com.example.pomodoro.presentation.taskScreen.Components.dateRow
 import java.time.LocalDate
 
@@ -105,7 +108,10 @@ fun TaskScreen(
 
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddTaskClicked, containerColor = MaterialTheme.colorScheme.primaryContainer ){
+            FloatingActionButton(
+                onClick = onAddTaskClicked,
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "",
@@ -119,15 +125,25 @@ fun TaskScreen(
         Column(modifier = Modifier.padding(it)) {
 
 
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(items = state.taskList, key = { it.taskid }) {
-                    Text(text = it.name)
-                }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items = state.taskList, key = { it.taskid }) { task ->
+                    TaskItemCard(
+                        progress = "${
+                        ((task.completedshifts * 100) / task.totatshifts)
+                    }",
+                        onClick = { /*TODO*/ },
+                        taskTitle = task.name,
+                        taskDesc = task.totatshifts
+                )
             }
         }
-        Task_BottomSheet(viewmodel = taskbottomviewmodel)
-        Spacer(modifier = Modifier.height(50.dp))
     }
+    Task_BottomSheet(viewmodel = taskbottomviewmodel)
+    Spacer(modifier = Modifier.height(50.dp))
+}
 
 }
 
