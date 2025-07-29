@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.pomodoro.Navigation.AppNavHost
 import com.example.pomodoro.presentation.HomeScreen.TaskScreen
 import com.example.pomodoro.presentation.HomeScreen.Task_Screen
 import com.example.pomodoro.presentation.StopWatch.StopwatchScreen
@@ -26,19 +27,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
           PomodoroTheme {
-              Scaffold{
-                  StopwatchScreen(modifier = Modifier.padding(it))
-/*    Task_Screen(modifier = Modifier.padding(it)) */
 
-}
-}
-
-
+               AppNavHost()
 
 
 }
 }
+
+
+
+
 }
+}
+
 
 
 @Composable

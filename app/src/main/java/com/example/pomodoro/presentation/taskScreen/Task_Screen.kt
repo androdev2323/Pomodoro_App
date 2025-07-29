@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.Insets
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.pomodoro.Navigation.Stopwatch
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomEvents
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetContent
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetViewModel
@@ -55,7 +57,7 @@ import java.time.LocalDate
 
 
 @Composable
-fun Task_Screen(modifier: Modifier = Modifier, viewmodel: HomeScreenViewmodel = hiltViewModel()) {
+fun Task_Screen(modifier: Modifier = Modifier, viewmodel: HomeScreenViewmodel = hiltViewModel(),navController: NavController,) {
     val state by viewmodel.HomescreenState.collectAsState()
     TaskScreen(
         state,
@@ -75,19 +77,22 @@ fun Task_Screen(modifier: Modifier = Modifier, viewmodel: HomeScreenViewmodel = 
                 )
             )
         },
-        onDateClicked = { viewmodel.onDateClicked(it) }
+        onDateClicked = { viewmodel.onDateClicked(it) },
+        OnTaskClicked = { navController.navigate(route = Stopwatch(it))}
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(
+internal fun TaskScreen(
     state: HomeScreenState,
+
     taskbottomviewmodel: TaskBottomSheetViewModel = hiltViewModel(),
     onAddTaskClicked: () -> Unit = { taskbottomviewmodel.action(TaskBottomEvents.OnShowBottomSheet) },
     onArrowLeftClicked: () -> Unit,
     onArrowRightClicked: () -> Unit,
-    onDateClicked: (LocalDate) -> Unit
+    onDateClicked: (LocalDate) -> Unit,
+    OnTaskClicked: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -134,7 +139,7 @@ fun TaskScreen(
                         progress = "${
                         ((task.completedshifts * 100) / task.totatshifts)
                     }",
-                        onClick = { /*TODO*/ },
+                        onClick ={OnTaskClicked(task.taskid.toInt())},
                         taskTitle = task.name,
                         taskDesc = task.totatshifts
                 )
