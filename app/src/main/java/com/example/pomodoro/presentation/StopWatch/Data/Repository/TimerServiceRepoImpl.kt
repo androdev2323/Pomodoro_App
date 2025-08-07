@@ -28,7 +28,7 @@ class TimerServiceRepoImpl @Inject constructor(
             this.action = PomodoroTimerService.ACTION_START_TIMER
             this.putExtra(PomodoroTimerService.REMAINING_TIME, duration)
         }
-        context.startService(intent)
+        context.startForegroundService(intent)
     }
 
 
@@ -37,7 +37,7 @@ class TimerServiceRepoImpl @Inject constructor(
             this.action = PomodoroTimerService.ACTION_PAUSE_TIMER
 
         }
-        context.startService(intent)
+        context.startForegroundService(intent)
     }
 
 
