@@ -59,7 +59,7 @@ private val isEnabled = MutableStateFlow(true)
     }
 
     fun onResumed(time: Long) {
-        serviceRepo.startTimer(time)
+        serviceRepo.startTimer(time, id = task.id)
     }
     fun onFinished(){
         viewModelScope.launch {
