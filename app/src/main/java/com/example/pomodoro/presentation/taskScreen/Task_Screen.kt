@@ -78,7 +78,7 @@ fun Task_Screen(modifier: Modifier = Modifier, viewmodel: HomeScreenViewmodel = 
             )
         },
         onDateClicked = { viewmodel.onDateClicked(it) },
-        OnTaskClicked = { navController.navigate(route = Stopwatch(it))}
+        OnTaskClicked = { if(!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now())))navController.navigate(route = Stopwatch(it))}
     )
 }
 

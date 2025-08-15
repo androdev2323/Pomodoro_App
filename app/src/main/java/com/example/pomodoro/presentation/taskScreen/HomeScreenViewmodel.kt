@@ -43,6 +43,7 @@ class HomeScreenViewmodel @Inject constructor(val repo: CalednarRepo, val reposi
               it.copy(isSelected = it.date.equals(Date))
           } ))
        }
+        action(events = HomeScreenEvents.GetTasks(date = Date))
     }
 
     fun action(events: HomeScreenEvents) {

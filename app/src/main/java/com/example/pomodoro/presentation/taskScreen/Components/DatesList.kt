@@ -24,7 +24,7 @@ fun DateSelectItem(date: CalendarUi.Date,onClick:(LocalDate) -> Unit) {
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
             .clickable { onClick(date.date) },
         colors=CardDefaults.cardColors(
-            containerColor = if(date.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            containerColor = if(date.isSelected || date.isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
         )
     ) {
         Column(
