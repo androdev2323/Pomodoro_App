@@ -7,6 +7,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.Ringtone
+import android.media.RingtoneManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -39,6 +42,7 @@ class PomodoroTimerService : LifecycleService() {
         const val ACTION_START_TIMER = "ACTION_START_TIMER"
         const val ACTION_PAUSE_TIMER = "ACTION_PAUSE_TIMER"
         const val ACTION_FINISHED = "ACTION_FINISHED"
+        const val ACTION_STOPALARM = "ACTION_STOPALARM"
         const val EXTRA_ID = "extra_id"
         const val REMAINING_TIME = "remaining_time"
         const val CHANNEL_ID = "pomodoro_timer"
@@ -52,7 +56,7 @@ class PomodoroTimerService : LifecycleService() {
         super.onCreate()
         getNotificationChannel(CHANNEL_ID, "Pomodoro Timer")
     }
-
+     private var alarmringtone:Ringtone? = null
     private var timerjob: Job? = null
     private var id:Int = -1
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -74,6 +78,9 @@ class PomodoroTimerService : LifecycleService() {
 
             ACTION_FINISHED -> {
                 onFinish()
+            }
+            ACTION_STOPALARM -> {
+              stopAlarm()
             }
         }
         return START_STICKY
@@ -101,6 +108,7 @@ class PomodoroTimerService : LifecycleService() {
 
 
             }
+            startAlarm()
             timerstatemanager.updatestate(TimerState.Finished(id))
             val updatedNotifcation  = getServiceNotificationBuilder(id = id, title = "test" , content =updatetime , notificationStatus = NotificationStatus.Finished)
             NotificationManagerCompat.from(this@PomodoroTimerService).notify(NOTIFICATION_ID,updatedNotifcation.build())
@@ -125,15 +133,39 @@ class PomodoroTimerService : LifecycleService() {
 
         }
     }
-    fun onFinish(){
+    private fun onFinish(){
         timerjob?.cancel()
         timerstatemanager.updatestate(null)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
     }
+    private fun stopAlarm(){
+        alarmringtone?.takeIf { it.isPlaying }?.stop()
+        alarmringtone = null
+        NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID)
+    }
+    private fun startAlarm(){
+        stopAlarm()
+        try{
+          val alarmuri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            alarmringtone = RingtoneManager.getRingtone(this,alarmuri)
+            alarmringtone?.let {
+                ringtone ->
+                ringtone.audioAttributes= AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .build()
+                ringtone.isLooping = true
+                ringtone.play()
+            }
+
+        }
+        catch (e:Exception){
+            Log.d("error" , e.message.toString())
+        }
+    }
 
 
     override fun onDestroy() {
-
+           stopAlarm()
         if (timerstatemanager.timerState.value is TimerState.Running) {
             timerstatemanager.updatestate(TimerState.Paused(
                 (timerstatemanager.timerState.value as TimerState.Running).time,
@@ -176,6 +208,17 @@ class PomodoroTimerService : LifecycleService() {
             getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         }
+
+        val alarmIntent = Intent(this, PomodoroTimerService::class.java).apply {
+            this.action = ACTION_STOPALARM
+
+        }
+        val alarmpendingIntent = PendingIntent.getService(
+            this,
+            0,
+            alarmIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val playintent = Intent(this, PomodoroTimerService::class.java).apply {
             this.action = ACTION_START_TIMER
             this.putExtra(REMAINING_TIME, content)
@@ -230,9 +273,10 @@ class PomodoroTimerService : LifecycleService() {
             build.addAction(
                R.drawable.baseline_stop_24,
                 "Dismiss",
-                contentpedningintent
+                alarmpendingIntent
 
             )
+                .setSilent(true)
         }
         return build
     }
