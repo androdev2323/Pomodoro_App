@@ -41,5 +41,13 @@ class TimerServiceRepoImpl @Inject constructor(
         context.startForegroundService(intent)
     }
 
+    override fun resetTimer() {
+        val intent = Intent(context, PomodoroTimerService::class.java).apply {
+            this.action = PomodoroTimerService.ACTION_FINISHED
+
+        }
+        context.startService(intent)
+    }
+
 
 }

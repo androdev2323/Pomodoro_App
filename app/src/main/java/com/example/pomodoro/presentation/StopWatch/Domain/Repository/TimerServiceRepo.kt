@@ -8,5 +8,6 @@ interface TimerServiceRepo {
     fun getTimerState(): Flow<TimerState>
     fun startTimer(duration:Long,id:Int)
     fun pauseTimer()
+    fun resetTimer()
 
 }

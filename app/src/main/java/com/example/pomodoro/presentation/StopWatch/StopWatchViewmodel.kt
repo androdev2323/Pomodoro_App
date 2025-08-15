@@ -1,5 +1,6 @@
 package com.example.pomodoro.presentation.StopWatch
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class StopWatchViewmodel @Inject constructor(val serviceRepo: TimerServiceRepo,val taskrepo: taskrepo,private val savedStateHandle: SavedStateHandle) : ViewModel() {
 private val isEnabled = MutableStateFlow(true)
-    private val task:Stopwatch = savedStateHandle.toRoute()
+    private val taskk:Stopwatch = savedStateHandle.toRoute()
  @OptIn(ExperimentalCoroutinesApi::class)
  val uistate:StateFlow<ViewmodelState> = isEnabled.mapLatest{
 
@@ -38,17 +40,26 @@ private val isEnabled = MutableStateFlow(true)
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val state: StateFlow<StopwatchScreenState> = taskrepo.getTaskById(task.id).flatMapLatest { task ->
+    val state: StateFlow<StopwatchScreenState> = taskrepo.getTaskById(taskk.id).flatMapLatest { task ->
+
         serviceRepo.getTimerState().map { timerState ->
-            when (timerState) {
-                is TimerState.Finished -> StopwatchScreenState(taskitem = task, timerState = StopWatchState.Finished)
-                is TimerState.Paused -> StopwatchScreenState(taskitem = task, timerState = StopWatchState.Pause(timerState.remainingtime))
-                is TimerState.Running -> StopwatchScreenState(taskitem = task, timerState = StopWatchState.Running(timerState.time))
-            }
+
+           val stopwatchstate =  when {
+               timerState is TimerState.Finished && timerState.id.toInt() == taskk.id ->  StopWatchState.Finished
+               timerState is TimerState.Paused && timerState.id.toInt() == taskk.id-> StopWatchState.Pause(timerState.remainingtime)
+                timerState is TimerState.Running && timerState.id.toInt() == taskk.id ->  StopWatchState.Running(timerState.time)
+               else -> {
+                 StopWatchState.Pause(task.remaining_time.toLong())
+               }
+           }
+            StopwatchScreenState(taskitem = task, timerState = stopwatchstate)
         }.onStart {
 
             emit(StopwatchScreenState(taskitem = task, timerState = StopWatchState.Pause((task.remaining_time) .toLong())))
         }
+            .onEach {
+                Log.d("current state" ,it.toString())
+            }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -59,11 +70,12 @@ private val isEnabled = MutableStateFlow(true)
     }
 
     fun onResumed(time: Long) {
-        serviceRepo.startTimer(time, id = task.id)
+        serviceRepo.startTimer(time, id = taskk.id)
     }
     fun onFinished(){
         viewModelScope.launch {
                isEnabled.value = true
+            serviceRepo.resetTimer()
 
             try {
                 taskrepo.updatetask(state.value.taskitem!!)

@@ -2,6 +2,8 @@ package com.example.pomodoro.presentation.StopWatch.Data.service
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -36,6 +38,7 @@ class PomodoroTimerService : LifecycleService() {
     companion object {
         const val ACTION_START_TIMER = "ACTION_START_TIMER"
         const val ACTION_PAUSE_TIMER = "ACTION_PAUSE_TIMER"
+        const val ACTION_FINISHED = "ACTION_FINISHED"
         const val EXTRA_ID = "extra_id"
         const val REMAINING_TIME = "remaining_time"
         const val CHANNEL_ID = "pomodoro_timer"
@@ -68,6 +71,10 @@ class PomodoroTimerService : LifecycleService() {
             ACTION_PAUSE_TIMER -> {
                 pausetime()
             }
+
+            ACTION_FINISHED -> {
+                onFinish()
+            }
         }
         return START_STICKY
     }
@@ -75,25 +82,26 @@ class PomodoroTimerService : LifecycleService() {
     @SuppressLint("MissingPermission")
     private fun starttimer(duration: Long, id: Int) {
       val notidication = getServiceNotificationBuilder(id =id,title = "test" , content =duration , notificationStatus = NotificationStatus.Playing)
-           startForeground(NOTIFICATION_ID,notidication.build())
+
+        startForeground(NOTIFICATION_ID,notidication.build())
 
         timerjob?.cancel()
 
         timerjob = lifecycleScope.launch(Dispatchers.Default) {
             var updatetime = duration
-            timerstatemanager.updatestate(TimerState.Running(updatetime))
+            timerstatemanager.updatestate(TimerState.Running(updatetime,id))
             while (updatetime >= 0 && isActive) {
 
                val updatedNotifcation  = getServiceNotificationBuilder(id = id, title = "test" , content =updatetime , notificationStatus = NotificationStatus.Playing)
                 NotificationManagerCompat.from(this@PomodoroTimerService).notify(NOTIFICATION_ID,updatedNotifcation.build())
 
-                timerstatemanager.updatestate(TimerState.Running(updatetime))
+                timerstatemanager.updatestate(TimerState.Running(updatetime,id))
                 delay(TICK_INTERVAL)
                 updatetime -= TICK_INTERVAL
 
 
             }
-            timerstatemanager.updatestate(TimerState.Finished)
+            timerstatemanager.updatestate(TimerState.Finished(id))
             val updatedNotifcation  = getServiceNotificationBuilder(id = id, title = "test" , content =updatetime , notificationStatus = NotificationStatus.Finished)
             NotificationManagerCompat.from(this@PomodoroTimerService).notify(NOTIFICATION_ID,updatedNotifcation.build())
 
@@ -108,7 +116,7 @@ class PomodoroTimerService : LifecycleService() {
         if (timerjob != null && timerstatemanager.timerState.value is TimerState.Running) {
             val time = (timerstatemanager.timerState.value as TimerState.Running).time
             Log.d("pause" , time.toString())
-            timerstatemanager.updatestate(TimerState.Paused(time))
+            timerstatemanager.updatestate(TimerState.Paused(time,id))
             val notidication = getServiceNotificationBuilder(id =id,title = "test" , content = time , notificationStatus = NotificationStatus.Paused)
             startForeground(NOTIFICATION_ID,notidication.build())
 
@@ -117,12 +125,20 @@ class PomodoroTimerService : LifecycleService() {
 
         }
     }
+    fun onFinish(){
+        timerjob?.cancel()
+        timerstatemanager.updatestate(null)
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+    }
 
 
     override fun onDestroy() {
 
         if (timerstatemanager.timerState.value is TimerState.Running) {
-            timerstatemanager.updatestate(TimerState.Paused((timerstatemanager.timerState.value as TimerState.Running).time))
+            timerstatemanager.updatestate(TimerState.Paused(
+                (timerstatemanager.timerState.value as TimerState.Running).time,
+                id =id
+            ))
         } else {
             timerstatemanager.updatestate(null)
         }
@@ -134,12 +150,12 @@ class PomodoroTimerService : LifecycleService() {
     private fun getNotificationChannel(channelId: String, ChannelName: String) {
 
 
-        val channel = android.app.NotificationChannel(
+        val channel = NotificationChannel(
             channelId,
             ChannelName,
-            android.app.NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_HIGH
         )
-        val notificationManager = getSystemService(android.app.NotificationManager::class.java)
+        val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
 
 
