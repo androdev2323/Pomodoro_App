@@ -7,7 +7,8 @@ data class HomeScreenState(
 
 
     val dates: CalendarUi? = null,
-    val taskList: List<Task> = emptyList()
+    val taskList: List<Task> = emptyList(),
+
 )
 
 

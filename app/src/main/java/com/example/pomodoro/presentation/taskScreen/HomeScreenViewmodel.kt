@@ -27,7 +27,10 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenViewmodel @Inject constructor(val repo: CalednarRepo, val repository: taskrepo) :
     ViewModel() {
-    private val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        var totaltask = 0;
+     var completedtask = 0;
+
+
     private var _HomescreenState: MutableStateFlow<HomeScreenState> =
         MutableStateFlow(HomeScreenState())
     val HomescreenState = _HomescreenState.asStateFlow()
@@ -92,6 +95,8 @@ class HomeScreenViewmodel @Inject constructor(val repo: CalednarRepo, val reposi
                                     _HomescreenState.update {
                                         it.copy(taskList = result.data)
                                     }
+                                    totaltask = result.data.size
+                                    completedtask = result.data.count { it.completedshifts == it.totatshifts }
                                 }
                             }
 

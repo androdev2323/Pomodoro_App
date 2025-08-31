@@ -70,8 +70,8 @@ fun TaskItemCard(
 ) {
     Card(
         modifier = modifier
-            .height(100.dp)
-            .padding(5.dp)
+            .height(120.dp)
+            .padding(10.dp)
             .clickable { onClick() }
             .fillMaxWidth(),
 
@@ -83,7 +83,7 @@ fun TaskItemCard(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                    .padding(horizontal = 8.dp, vertical = 9.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(15.dp)
             ) {
@@ -173,7 +173,7 @@ fun TaskDetailElement(modifier: Modifier = Modifier, taskTitle: String, taskDura
                 text = taskTitle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
 
                 )
 
@@ -191,7 +191,7 @@ fun TaskDetailElement(modifier: Modifier = Modifier, taskTitle: String, taskDura
 
         }
 
-        Text(text= "Duration: $taskDuration hrs", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(text= "Duration: $taskDuration hrs", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
 
 
     }
@@ -208,7 +208,7 @@ private fun TaskItemCardPreview() {
 
             TaskItemCard(
                 modifier = Modifier.padding(it),
-                progress = "100",
+                progress = "10",
                 onClick = { /*TODO*/ },
                 taskTitle = "Android App Development",
                 taskDesc = 2

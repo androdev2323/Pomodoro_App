@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pomodoro"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.gms.fonts.certs"
+            android:resource="@array/com_google_android_gms_fonts_certs" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

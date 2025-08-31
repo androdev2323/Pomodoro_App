@@ -45,7 +45,7 @@ fun dateRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            , // Padding outside the card
+            ,
 
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         colors = CardDefaults.cardColors(

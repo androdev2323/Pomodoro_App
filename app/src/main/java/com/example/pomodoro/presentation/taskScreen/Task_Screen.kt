@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.Insets
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +51,7 @@ import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetContent
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetViewModel
 import com.example.pomodoro.presentation.BottomSheet.Task_BottomSheet
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
+import com.example.pomodoro.presentation.taskScreen.Components.DailyTaskCard
 import com.example.pomodoro.presentation.taskScreen.Components.TaskDetailElement
 import com.example.pomodoro.presentation.taskScreen.Components.TaskItemCard
 import com.example.pomodoro.presentation.taskScreen.Components.dateRow
@@ -57,7 +59,11 @@ import java.time.LocalDate
 
 
 @Composable
-fun Task_Screen(modifier: Modifier = Modifier, viewmodel: HomeScreenViewmodel = hiltViewModel(),navController: NavController,) {
+fun Task_Screen(
+    modifier: Modifier = Modifier,
+    viewmodel: HomeScreenViewmodel = hiltViewModel(),
+    navController: NavController,
+) {
     val state by viewmodel.HomescreenState.collectAsState()
     TaskScreen(
         state,
@@ -77,16 +83,23 @@ fun Task_Screen(modifier: Modifier = Modifier, viewmodel: HomeScreenViewmodel = 
                 )
             )
         },
+        completedtask = viewmodel.completedtask,
+        totaltask = viewmodel.totaltask,
         onDateClicked = { viewmodel.onDateClicked(it) },
-        OnTaskClicked = { if(!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now())))navController.navigate(route = Stopwatch(it))}
+        OnTaskClicked = {
+            if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) navController.navigate(
+                route = Stopwatch(it)
+            )
+        }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 internal fun TaskScreen(
     state: HomeScreenState,
-
+    totaltask:Int,
+    completedtask:Int,
     taskbottomviewmodel: TaskBottomSheetViewModel = hiltViewModel(),
     onAddTaskClicked: () -> Unit = { taskbottomviewmodel.action(TaskBottomEvents.OnShowBottomSheet) },
     onArrowLeftClicked: () -> Unit,
@@ -127,9 +140,15 @@ internal fun TaskScreen(
         floatingActionButtonPosition = FabPosition.End
     ) {
 
-        Column(modifier = Modifier.padding(it)) {
-
-
+        Column(modifier = Modifier.padding(it).fillMaxWidth()) {
+            DailyTaskCard(totalTask =totaltask , completedTask = completedtask)
+            Spacer(Modifier.height(10.dp))
+            Text(
+                "Today's Tasks",
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(10.dp)
+            )
+            Spacer(Modifier.height(5.dp))
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -137,18 +156,18 @@ internal fun TaskScreen(
                 items(items = state.taskList, key = { it.taskid }) { task ->
                     TaskItemCard(
                         progress = "${
-                        ((task.completedshifts * 100) / task.totatshifts)
-                    }",
-                        onClick ={OnTaskClicked(task.taskid.toInt())},
+                            ((task.completedshifts * 100) / task.totatshifts)
+                        }",
+                        onClick = { OnTaskClicked(task.taskid.toInt()) },
                         taskTitle = task.name,
                         taskDesc = task.totatshifts
-                )
+                    )
+                }
             }
         }
+        Task_BottomSheet(viewmodel = taskbottomviewmodel)
+        Spacer(modifier = Modifier.height(50.dp))
     }
-    Task_BottomSheet(viewmodel = taskbottomviewmodel)
-    Spacer(modifier = Modifier.height(50.dp))
-}
 
 }
 
