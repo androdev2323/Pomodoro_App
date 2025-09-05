@@ -1,6 +1,7 @@
 package com.example.pomodoro.presentation.HomeScreen.Components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,8 +31,10 @@ fun DateSelectItem(date: CalendarUi.Date,onClick:(LocalDate) -> Unit) {
         Column(
             modifier = Modifier
                 .padding(4.dp)
-                .height(30.dp)
-                .width(30.dp)
+                .height(40.dp)
+                .width(40.dp)
+                , verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = date.day,

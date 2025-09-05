@@ -1,8 +1,5 @@
 package com.example.pomodoro.presentation.HomeScreen
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pomodoro.Data.local.Entity.Task
@@ -12,120 +9,140 @@ import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
 import com.example.pomodoro.presentation.HomeScreen.Repository.CalednarRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import java.lang.Thread.State
+import java.time.DayOfWeek
 import java.time.LocalDate
-import java.util.Locale
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeScreenViewmodel @Inject constructor(val repo: CalednarRepo, val repository: taskrepo) :
-    ViewModel() {
-        var totaltask = 0;
-     var completedtask = 0;
+class HomeScreenViewmodel @Inject constructor(
+    private val calendarRepo: CalednarRepo,
+    private val taskRepository: taskrepo
+) : ViewModel() {
 
 
-    private var _HomescreenState: MutableStateFlow<HomeScreenState> =
-        MutableStateFlow(HomeScreenState())
-    val HomescreenState = _HomescreenState.asStateFlow()
+    private val _sortingOrder = MutableStateFlow(SortedOrder.SORT_BY_RECENT)
 
-    init {
-        action(events = HomeScreenEvents.getDates(lastselectedDate = LocalDate.now()))
-        action(events = HomeScreenEvents.GetTasks(date = LocalDate.now()))
 
-    }
-    fun onDateClicked(Date: LocalDate){
-       _HomescreenState.update {
-          it.copy(dates = it.dates?.copy(selecteddate = toDate(Date,true),visbledates = it.dates.visbledates.map{
-              it.copy(isSelected = it.date.equals(Date))
-          } ))
-       }
-        action(events = HomeScreenEvents.GetTasks(date = Date))
+
+    private val _selectedDate = MutableStateFlow(LocalDate.now())
+     private val _sortdialogstatus:MutableStateFlow<sortDialog> = MutableStateFlow(sortDialog.none)
+
+
+
+    private val calendarUiFlow = _selectedDate.flatMapLatest { selectedDate ->
+
+        val pageStartDate = getStartOfWeek(selectedDate)
+        calendarRepo.getinbetweenDates(startdate = pageStartDate, lastselectdate = selectedDate)
     }
 
-    fun action(events: HomeScreenEvents) {
-
-        when (events) {
-            is HomeScreenEvents.getDates -> {
-                viewModelScope.launch() {
-                    repo.getinbetweenDates(
-                        startdate = events.startdate,
-                        lastselectdate = events.lastselectedDate
-                    ).collectLatest {
-                        when (it) {
-                            is NetworkResult.Error -> {}
-                            is NetworkResult.Success -> {
-                                val result = it.data
-                                _HomescreenState.update { state ->
-                                    state.copy(
-                                        dates = CalendarUi(
-                                            selecteddate = toDate(
-                                                events.lastselectedDate,
-                                                true
-                                            ), visbledates = result.map {
-                                                toDate(it, it.equals(events.lastselectedDate))
-                                            })
-                                    )
-                                }
-                            }
+    private val tasksFlow = _selectedDate.flatMapLatest { date ->
+        taskRepository.gettaskbydate(date.toUtcStartOfDayMillis())
+    }
 
 
-                        }
-                    }
+    val homescreenState: StateFlow<HomeScreenState> = combine(
+        calendarUiFlow,
+        tasksFlow,
+        _sortingOrder,
+        _selectedDate,
+        _sortdialogstatus
+    ) { calendarResult, taskResult, order, currentDate,dialogstatus ->
 
-                }
-            }
-
-            is HomeScreenEvents.GetTasks -> {
-                viewModelScope.launch(Dispatchers.IO) {
-
-
-                        repository.gettaskbydate(events.date.toUtcStartOfDayMillis()).collect {
-                                result->
-                            when(result){
-                                is NetworkResult.Error -> TODO()
-                                is NetworkResult.Success-> {
-
-                                    _HomescreenState.update {
-                                        it.copy(taskList = result.data)
-                                    }
-                                    totaltask = result.data.size
-                                    completedtask = result.data.count { it.completedshifts == it.totatshifts }
-                                }
-                            }
-
-
-
-
-
-
-
-
-
-
-                        }
-
-                }
-            }
-
-
-            else -> {}
+        val calendarUi = if (calendarResult is NetworkResult.Success) {
+            val dates = calendarResult.data ?: emptyList()
+            CalendarUi(
+                selecteddate = toDate(currentDate, true),
+                visbledates = dates.map { toDate(it, it.isEqual(currentDate)) }
+            )
+        } else {
+            CalendarUi(selecteddate = toDate(currentDate, true), visbledates = emptyList())
         }
 
+        if (taskResult is NetworkResult.Success) {
+            val unsortedList = taskResult.data
+            val sortedList = when (order) {
+                SortedOrder.SORT_BY_RECENT -> unsortedList
+                SortedOrder.SORT_BY_DURATION -> unsortedList.sortedBy { it.duration }
+                SortedOrder.SORT_BY_NAME -> unsortedList.sortedBy { it.name }
+            }
 
+
+            HomeScreenState(
+                dates = calendarUi,
+                taskList = sortedList,
+                totalTaskCount = unsortedList.size,
+                sortStatus =dialogstatus ,
+                sortedOrder = order,
+                completedTaskCount = unsortedList.count { it.completedshifts == it.totatshifts }
+            )
+        } else {
+            HomeScreenState(dates = calendarUi, isLoading = true, sortStatus = dialogstatus, sortedOrder = order)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = HomeScreenState(isLoading = true, sortedOrder = SortedOrder.SORT_BY_RECENT)
+    )
+
+       fun onSortDialogStatusChanged(newStatus: sortDialog) {
+        _sortdialogstatus.value = newStatus
+       }
+
+    fun onDateClicked(date: LocalDate) {
+
+        _selectedDate.value = date
     }
+
+    fun onSortOrderChanged(newOrder: SortedOrder) {
+        _sortingOrder.value = newOrder
+    }
+
+    fun onSortDialogDismissed(sortedOrder: SortedOrder){
+
+      onSortOrderChanged(sortedOrder)
+        onSortDialogStatusChanged(sortDialog.none)
+    }
+
+
+    fun onCalendarPageLeft() {
+        val currentStartDate = getStartOfWeek(_selectedDate.value)
+        _selectedDate.value = currentStartDate.minusWeeks(1)
+    }
+
+    fun onCalendarPageRight() {
+        val currentStartDate = getStartOfWeek(_selectedDate.value)
+        _selectedDate.value = currentStartDate.plusWeeks(1)
+    }
+
+  
+    private fun getStartOfWeek(date: LocalDate): LocalDate {
+        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    }
+
+
+
 
     private fun toDate(date: LocalDate, isSelected: Boolean) = CalendarUi.Date(
         date = date,
         isSelected = isSelected,
-        isToday = date.equals(LocalDate.now())
+        isToday = date.isEqual(LocalDate.now())
     )
 }
 
 
+
+
+enum class SortedOrder {
+    SORT_BY_RECENT,
+    SORT_BY_DURATION,
+    SORT_BY_NAME,
+}

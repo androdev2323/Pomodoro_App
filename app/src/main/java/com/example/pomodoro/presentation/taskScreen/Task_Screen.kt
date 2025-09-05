@@ -1,8 +1,10 @@
 package com.example.pomodoro.presentation.HomeScreen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -39,19 +41,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.Insets
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pomodoro.Navigation.Stopwatch
+import com.example.pomodoro.R
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomEvents
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetContent
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetViewModel
 import com.example.pomodoro.presentation.BottomSheet.Task_BottomSheet
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
 import com.example.pomodoro.presentation.taskScreen.Components.DailyTaskCard
+import com.example.pomodoro.presentation.taskScreen.Components.SortedSheet
 import com.example.pomodoro.presentation.taskScreen.Components.TaskDetailElement
 import com.example.pomodoro.presentation.taskScreen.Components.TaskItemCard
 import com.example.pomodoro.presentation.taskScreen.Components.dateRow
@@ -64,34 +70,35 @@ fun Task_Screen(
     viewmodel: HomeScreenViewmodel = hiltViewModel(),
     navController: NavController,
 ) {
-    val state by viewmodel.HomescreenState.collectAsState()
-    TaskScreen(
-        state,
-        onArrowLeftClicked = {
-            viewmodel.action(
-                HomeScreenEvents.getDates(
-                    startdate = state.dates!!.startdate.date.minusDays(1),
-                    lastselectedDate = state.dates!!.selecteddate.date
+    val state by viewmodel.homescreenState.collectAsStateWithLifecycle()
+    if(state.dates != null) {
+        TaskScreen(
+            state,
+            onArrowLeftClicked = {
+                viewmodel.onCalendarPageLeft()
+
+            },
+            onArrowRightClicked = {
+                viewmodel.onCalendarPageRight()
+            },
+            completedtask = state.completedTaskCount,
+            totaltask = state.totalTaskCount,
+            onDateClicked = { viewmodel.onDateClicked(it) },
+            OnTaskClicked = {
+                if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) navController.navigate(
+                    route = Stopwatch(it)
                 )
-            )
-        },
-        onArrowRightClicked = {
-            viewmodel.action(
-                HomeScreenEvents.getDates(
-                    startdate = state.dates!!.enddate.date.plusDays(2),
-                    lastselectedDate = state.dates!!.selecteddate.date
-                )
-            )
-        },
-        completedtask = viewmodel.completedtask,
-        totaltask = viewmodel.totaltask,
-        onDateClicked = { viewmodel.onDateClicked(it) },
-        OnTaskClicked = {
-            if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) navController.navigate(
-                route = Stopwatch(it)
-            )
-        }
-    )
+            },
+            onSortClicked = {
+                viewmodel.onSortDialogStatusChanged(it)
+            },
+            onSortOrderDismissed = {
+                viewmodel.onSortDialogDismissed(it)
+            }
+        )
+    }
+
+
 }
 
 
@@ -105,6 +112,8 @@ internal fun TaskScreen(
     onArrowLeftClicked: () -> Unit,
     onArrowRightClicked: () -> Unit,
     onDateClicked: (LocalDate) -> Unit,
+    onSortOrderDismissed:(sortedOrder:SortedOrder) -> Unit,
+    onSortClicked:(sortDialog:sortDialog) -> Unit,
     OnTaskClicked: (Int) -> Unit
 ) {
     Scaffold(
@@ -139,15 +148,29 @@ internal fun TaskScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) {
-
-        Column(modifier = Modifier.padding(it).fillMaxWidth()) {
+ Log.d("order",state.sortedOrder.name)
+        Column(modifier = Modifier
+            .padding(it)
+            .fillMaxWidth()) {
+            if(state.sortStatus  == sortDialog.tasksort){
+               SortedSheet(sortedOrder =state.sortedOrder ) {
+                   onSortOrderDismissed(it)
+               }
+            }
+            Spacer(Modifier.height(10.dp))
             DailyTaskCard(totalTask =totaltask , completedTask = completedtask)
             Spacer(Modifier.height(10.dp))
-            Text(
-                "Today's Tasks",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(10.dp)
-            )
+            Row(modifier = Modifier.padding(10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    "Today's Tasks",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                IconButton(onClick = {
+                     onSortClicked(sortDialog.tasksort)
+                }) {
+                    Icon(painter = painterResource(R.drawable.sort_24px), contentDescription = "", tint = MaterialTheme.colorScheme.primary)
+                }
+            }
             Spacer(Modifier.height(5.dp))
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),

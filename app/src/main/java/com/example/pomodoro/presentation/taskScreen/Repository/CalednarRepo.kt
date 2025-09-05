@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface CalednarRepo {
-    suspend fun getinbetweenDates(startdate:LocalDate,lastselectdate: LocalDate): Flow <NetworkResult<List<LocalDate>>>
+    suspend fun getinbetweenDates(startdate:LocalDate = LocalDate.now(),lastselectdate: LocalDate): Flow <NetworkResult<List<LocalDate>>>
 }
