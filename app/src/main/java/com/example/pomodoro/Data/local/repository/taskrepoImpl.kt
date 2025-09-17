@@ -74,4 +74,9 @@ class taskrepoImpl(val taskDao: TaskDao):taskrepo {
     override suspend fun updateremainingtime(task:Task, remaining_time: Int) {
 
     }
+
+    override suspend fun deletetask(task: Task) {
+        taskDao.deletetask(task)
+
+    }
 }

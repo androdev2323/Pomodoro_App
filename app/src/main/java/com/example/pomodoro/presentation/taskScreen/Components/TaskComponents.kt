@@ -184,7 +184,7 @@ fun TaskDetailElement(modifier: Modifier = Modifier, taskTitle: String, taskDura
             ) {
                 Text(
                     "Done",
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
             }

@@ -1,6 +1,11 @@
 package com.example.pomodoro.presentation.HomeScreen
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +18,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -38,6 +46,9 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +60,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.pomodoro.Data.local.Entity.Task
 import com.example.pomodoro.Navigation.Stopwatch
 import com.example.pomodoro.R
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomEvents
@@ -57,7 +69,9 @@ import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetViewModel
 import com.example.pomodoro.presentation.BottomSheet.Task_BottomSheet
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
 import com.example.pomodoro.presentation.taskScreen.Components.DailyTaskCard
+import com.example.pomodoro.presentation.taskScreen.Components.RowActions
 import com.example.pomodoro.presentation.taskScreen.Components.SortedSheet
+import com.example.pomodoro.presentation.taskScreen.Components.SwipeToReveal
 import com.example.pomodoro.presentation.taskScreen.Components.TaskDetailElement
 import com.example.pomodoro.presentation.taskScreen.Components.TaskItemCard
 import com.example.pomodoro.presentation.taskScreen.Components.dateRow
@@ -71,7 +85,7 @@ fun Task_Screen(
     navController: NavController,
 ) {
     val state by viewmodel.homescreenState.collectAsStateWithLifecycle()
-    if(state.dates != null) {
+    if (state.dates != null) {
         TaskScreen(
             state,
             onArrowLeftClicked = {
@@ -94,6 +108,9 @@ fun Task_Screen(
             },
             onSortOrderDismissed = {
                 viewmodel.onSortDialogDismissed(it)
+            },
+            onDeleteClicked = {
+                viewmodel.onDeleteTask(it)
             }
         )
     }
@@ -105,16 +122,17 @@ fun Task_Screen(
 @Composable
 internal fun TaskScreen(
     state: HomeScreenState,
-    totaltask:Int,
-    completedtask:Int,
+    totaltask: Int,
+    completedtask: Int,
     taskbottomviewmodel: TaskBottomSheetViewModel = hiltViewModel(),
     onAddTaskClicked: () -> Unit = { taskbottomviewmodel.action(TaskBottomEvents.OnShowBottomSheet) },
     onArrowLeftClicked: () -> Unit,
     onArrowRightClicked: () -> Unit,
     onDateClicked: (LocalDate) -> Unit,
-    onSortOrderDismissed:(sortedOrder:SortedOrder) -> Unit,
-    onSortClicked:(sortDialog:sortDialog) -> Unit,
-    OnTaskClicked: (Int) -> Unit
+    onSortOrderDismissed: (sortedOrder: SortedOrder) -> Unit,
+    onSortClicked: (sortDialog: sortDialog) -> Unit,
+    OnTaskClicked: (Int) -> Unit,
+    onDeleteClicked: (Task) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -148,27 +166,39 @@ internal fun TaskScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) {
- Log.d("order",state.sortedOrder.name)
-        Column(modifier = Modifier
-            .padding(it)
-            .fillMaxWidth()) {
-            if(state.sortStatus  == sortDialog.tasksort){
-               SortedSheet(sortedOrder =state.sortedOrder ) {
-                   onSortOrderDismissed(it)
-               }
+        Log.d("order", state.sortedOrder.name)
+        Column(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxWidth()
+        ) {
+            if (state.sortStatus == sortDialog.tasksort) {
+                SortedSheet(sortedOrder = state.sortedOrder) {
+                    onSortOrderDismissed(it)
+                }
             }
             Spacer(Modifier.height(10.dp))
-            DailyTaskCard(totalTask =totaltask , completedTask = completedtask)
+            DailyTaskCard(totalTask = totaltask, completedTask = completedtask)
             Spacer(Modifier.height(10.dp))
-            Row(modifier = Modifier.padding(10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     "Today's Tasks",
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    )
+                )
                 IconButton(onClick = {
-                     onSortClicked(sortDialog.tasksort)
+                    onSortClicked(sortDialog.tasksort)
                 }) {
-                    Icon(painter = painterResource(R.drawable.sort_24px), contentDescription = "", tint = MaterialTheme.colorScheme.primary)
+                    Icon(
+                        painter = painterResource(R.drawable.sort_24px),
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
             }
             Spacer(Modifier.height(5.dp))
@@ -177,13 +207,35 @@ internal fun TaskScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(items = state.taskList, key = { it.taskid }) { task ->
-                    TaskItemCard(
-                        progress = "${
-                            ((task.completedshifts * 100) / task.totatshifts)
-                        }",
-                        onClick = { OnTaskClicked(task.taskid.toInt()) },
-                        taskTitle = task.name,
-                        taskDesc = task.totatshifts
+                    var isdeleting by remember { mutableStateOf(false) }
+
+                    SwipeToReveal(
+                        actions = {
+                        RowActions(
+                            onClick = { isdeleting = true },
+                            backgroundColor = Color.Red.copy(alpha = 0.7f),
+                            icon = Icons.Default.Delete
+                        )
+                        RowActions(
+                            onClick = { },
+                            backgroundColor = Color.Gray.copy(alpha = 0.7f),
+                            icon = Icons.Default.Create
+                        )
+                    },
+                        content = {
+                            TaskItemCard(
+
+                                progress = "${
+                                    ((task.completedshifts * 100) / task.totatshifts)
+                                }",
+                                onClick = { OnTaskClicked(task.taskid.toInt()) },
+                                taskTitle = task.name,
+                                taskDesc = task.duration
+                            )
+                        },
+                        modifier = Modifier.animateItem(placementSpec = tween(durationMillis = 600)),
+                        postDelete = {onDeleteClicked(task)},
+                        isfordelete = isdeleting
                     )
                 }
             }

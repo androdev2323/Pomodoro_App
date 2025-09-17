@@ -16,4 +16,5 @@ interface taskrepo {
    suspend fun updateremainingtime(
       task: Task, remaining_time: Int
     )
+    suspend fun deletetask(task: Task)
 }

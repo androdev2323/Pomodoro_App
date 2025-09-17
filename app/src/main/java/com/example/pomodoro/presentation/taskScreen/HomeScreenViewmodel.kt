@@ -9,6 +9,7 @@ import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
 import com.example.pomodoro.presentation.HomeScreen.Repository.CalednarRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +39,7 @@ class HomeScreenViewmodel @Inject constructor(
 
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val calendarUiFlow = _selectedDate.flatMapLatest { selectedDate ->
 
         val pageStartDate = getStartOfWeek(selectedDate)
@@ -71,7 +73,7 @@ class HomeScreenViewmodel @Inject constructor(
             val unsortedList = taskResult.data
             val sortedList = when (order) {
                 SortedOrder.SORT_BY_RECENT -> unsortedList
-                SortedOrder.SORT_BY_DURATION -> unsortedList.sortedBy { it.duration }
+                SortedOrder.SORT_BY_DURATION -> unsortedList.sortedByDescending { it.duration }
                 SortedOrder.SORT_BY_NAME -> unsortedList.sortedBy { it.name }
             }
 
@@ -122,6 +124,11 @@ class HomeScreenViewmodel @Inject constructor(
         val currentStartDate = getStartOfWeek(_selectedDate.value)
         _selectedDate.value = currentStartDate.plusWeeks(1)
     }
+    fun onDeleteTask(task: Task) {
+        viewModelScope.launch {
+            taskRepository.deletetask(task)
+        }
+    }
 
   
     private fun getStartOfWeek(date: LocalDate): LocalDate {
@@ -136,6 +143,7 @@ class HomeScreenViewmodel @Inject constructor(
         isSelected = isSelected,
         isToday = date.isEqual(LocalDate.now())
     )
+
 }
 
 

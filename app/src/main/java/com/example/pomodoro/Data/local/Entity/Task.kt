@@ -18,7 +18,7 @@ import java.time.LocalDate
  val totatshifts:Int,
   val completedshifts:Int=0,
   val session_status:String = PomdoroContract.STATUS_PENDING,
-  val session_type:String = PomdoroContract.POMODORO_SHORTBREAK,
-  val remaining_time:Int = PomdoroContract.DEFAULT_SHORTBREAKDURATION
+  val session_type:String = PomdoroContract.POMODORO_WORK,
+  val remaining_time:Int = PomdoroContract.DEFAULT_WORKDURATION
 
  )

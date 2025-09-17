@@ -1,6 +1,7 @@
 package com.example.pomodoro.Data.local.Dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -38,6 +39,8 @@ interface TaskDao {
   suspend  fun updateremainingtime(
         id: Int, remaining_time: Int
     )
+  @Delete
+  suspend  fun deletetask(task: Task)
+  }
 
 
-}

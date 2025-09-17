@@ -61,7 +61,7 @@ fun DailyTaskCard(
                 .fillMaxWidth()
                 .padding(16.dp),
         ) {
-            // Top Row: Title and Task Count
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -91,15 +91,15 @@ fun DailyTaskCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .clip(CircleShape), // Gives the container rounded corners
+                    .clip(CircleShape),
                 color = MaterialTheme.colorScheme.tertiary,
                 trackColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
-                strokeCap = StrokeCap.Round // Makes the progress line itself have rounded ends
+                strokeCap = StrokeCap.Round
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Bottom Row: Status Text (Percentage or "No tasks")
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
