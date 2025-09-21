@@ -5,7 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.example.pomodoro.Navigation.Stopwatch
+import com.example.pomodoro.Navigation.HomeScreenRoutes
+
 import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
 import com.example.pomodoro.presentation.StopWatch.Domain.Repository.TimerServiceRepo
@@ -27,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class StopWatchViewmodel @Inject constructor(val serviceRepo: TimerServiceRepo,val taskrepo: taskrepo,private val savedStateHandle: SavedStateHandle) : ViewModel() {
 private val isEnabled = MutableStateFlow(true)
-    private val taskk:Stopwatch = savedStateHandle.toRoute()
+    private val taskk: HomeScreenRoutes.Stopwatch = savedStateHandle.toRoute()
  @OptIn(ExperimentalCoroutinesApi::class)
  val uistate:StateFlow<ViewmodelState> = isEnabled.mapLatest{
 

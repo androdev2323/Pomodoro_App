@@ -56,7 +56,7 @@ fun dateRow(
         Column {
             Row(
                 modifier = Modifier
-                    .padding(start = 10.dp) // Keep internal padding for alignment
+                    .padding(start = 10.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically

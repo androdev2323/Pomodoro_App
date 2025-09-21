@@ -38,12 +38,11 @@ fun DateSelectItem(date: CalendarUi.Date,onClick:(LocalDate) -> Unit) {
                 .padding(8.dp)
                 .height(50.dp)
                 .width(50.dp)
-                , verticalArrangement = Arrangement.spacedBy(3.dp),
+                , verticalArrangement = Arrangement.spacedBy(3.2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = date.day,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodySmall
             )
             Text(

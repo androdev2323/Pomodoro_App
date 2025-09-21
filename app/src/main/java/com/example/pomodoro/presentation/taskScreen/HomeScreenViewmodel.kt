@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.lang.Thread.State
@@ -31,6 +32,7 @@ class HomeScreenViewmodel @Inject constructor(
 
 
     private val _sortingOrder = MutableStateFlow(SortedOrder.SORT_BY_RECENT)
+    private val _expandedid = MutableStateFlow<Long?>(null)
 
 
 
@@ -49,7 +51,14 @@ class HomeScreenViewmodel @Inject constructor(
     private val tasksFlow = _selectedDate.flatMapLatest { date ->
         taskRepository.gettaskbydate(date.toUtcStartOfDayMillis())
     }
-
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val homeScreenUiState:StateFlow<UiState> = _expandedid.mapLatest{
+        UiState(expandedTaskId = it)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = UiState()
+    )
 
     val homescreenState: StateFlow<HomeScreenState> = combine(
         calendarUiFlow,
@@ -128,6 +137,9 @@ class HomeScreenViewmodel @Inject constructor(
         viewModelScope.launch {
             taskRepository.deletetask(task)
         }
+    }
+    fun changeExpandedId(id: Long?) {
+    _expandedid.value = id
     }
 
   

@@ -63,7 +63,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
+  //extended icons
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.room.ktx)
    implementation(libs.room.runtime)
     implementation(libs.androidx.ui.text.google.fonts)

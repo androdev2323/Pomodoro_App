@@ -61,7 +61,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pomodoro.Data.local.Entity.Task
-import com.example.pomodoro.Navigation.Stopwatch
+import com.example.pomodoro.Navigation.HomeScreenRoutes
+
 import com.example.pomodoro.R
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomEvents
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetContent
@@ -85,9 +86,11 @@ fun Task_Screen(
     navController: NavController,
 ) {
     val state by viewmodel.homescreenState.collectAsStateWithLifecycle()
+    val uiState by viewmodel.homeScreenUiState.collectAsStateWithLifecycle()
     if (state.dates != null) {
         TaskScreen(
-            state,
+            state = state,
+            uiState = uiState,
             onArrowLeftClicked = {
                 viewmodel.onCalendarPageLeft()
 
@@ -100,7 +103,7 @@ fun Task_Screen(
             onDateClicked = { viewmodel.onDateClicked(it) },
             OnTaskClicked = {
                 if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) navController.navigate(
-                    route = Stopwatch(it)
+                    route = HomeScreenRoutes.Stopwatch(it)
                 )
             },
             onSortClicked = {
@@ -111,6 +114,12 @@ fun Task_Screen(
             },
             onDeleteClicked = {
                 viewmodel.onDeleteTask(it)
+            },
+            onTaskExpanded = {
+                viewmodel.changeExpandedId(it)
+            },
+            onTaskCollapsed = {
+                viewmodel.changeExpandedId(null)
             }
         )
     }
@@ -122,6 +131,7 @@ fun Task_Screen(
 @Composable
 internal fun TaskScreen(
     state: HomeScreenState,
+    uiState: UiState,
     totaltask: Int,
     completedtask: Int,
     taskbottomviewmodel: TaskBottomSheetViewModel = hiltViewModel(),
@@ -132,8 +142,11 @@ internal fun TaskScreen(
     onSortOrderDismissed: (sortedOrder: SortedOrder) -> Unit,
     onSortClicked: (sortDialog: sortDialog) -> Unit,
     OnTaskClicked: (Int) -> Unit,
-    onDeleteClicked: (Task) -> Unit
+    onDeleteClicked: (Task) -> Unit,
+    onTaskExpanded: (Long?) -> Unit,
+    onTaskCollapsed: (Long?) -> Unit
 ) {
+    Log.d("expanded",uiState.expandedTaskId.toString())
     Scaffold(
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
@@ -235,7 +248,10 @@ internal fun TaskScreen(
                         },
                         modifier = Modifier.animateItem(placementSpec = tween(durationMillis = 600)),
                         postDelete = {onDeleteClicked(task)},
-                        isfordelete = isdeleting
+                        isfordelete = isdeleting,
+                        isExpanded = uiState.expandedTaskId == task.taskid ,
+                        onCollapsed = { onTaskCollapsed(null) },
+                        onExpanded = {onTaskExpanded(task.taskid)}
                     )
                 }
             }

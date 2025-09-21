@@ -14,6 +14,10 @@ data class HomeScreenState(
     val sortStatus: sortDialog = sortDialog.none
 )
 
+data class UiState(
+    val expandedTaskId:Long? = null
+)
+
 sealed interface sortDialog{
     data object none:sortDialog
     data object tasksort:sortDialog
