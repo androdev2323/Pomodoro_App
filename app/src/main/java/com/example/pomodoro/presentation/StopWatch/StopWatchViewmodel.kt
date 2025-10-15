@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.pomodoro.Data.PomdoroContract
+import com.example.pomodoro.Data.PomdoroContract.POMODORO_WORK
 import com.example.pomodoro.Navigation.HomeScreenRoutes
 
 import com.example.pomodoro.domain.repository.taskrepo
@@ -71,7 +73,7 @@ private val isEnabled = MutableStateFlow(true)
     }
 
     fun onResumed(time: Long) {
-        serviceRepo.startTimer(time, id = taskk.id)
+        serviceRepo.startTimer(time, id = taskk.id, isWork =state.value.taskitem?.session_type.equals(POMODORO_WORK ))
     }
     fun onFinished(){
         viewModelScope.launch {

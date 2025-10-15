@@ -5,11 +5,15 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -22,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.pomodoro.MainActivity
 import com.example.pomodoro.R
 import com.example.pomodoro.Util.TimeFormatter
+import com.example.pomodoro.presentation.AppBlock.data.AppBlockService
 import com.example.pomodoro.presentation.StopWatch.Data.TimerStatusManager
 import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +41,26 @@ private const val TICK_INTERVAL = 1000L
 
 @AndroidEntryPoint
 class PomodoroTimerService : LifecycleService() {
+    private lateinit var AppBlockServices: AppBlockService
+    private var mbinder = false
+    private val connection =
+        object : ServiceConnection {
+            override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+                val binder = p1 as AppBlockService.LocalBinder
+                AppBlockServices = binder.getService()
+
+                mbinder = true;
+            }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                Log.d("dc", "reached and reconnected")
+                if (mbinder) {
+                    startService(Intent(this@PomodoroTimerService, AppBlockService::class.java))
+
+                }
+            }
+
+        }
 
 
     companion object {
@@ -46,6 +71,7 @@ class PomodoroTimerService : LifecycleService() {
         const val EXTRA_ID = "extra_id"
         const val REMAINING_TIME = "remaining_time"
         const val CHANNEL_ID = "pomodoro_timer"
+        const val IS_WORK = "ISWORK"
         const val NOTIFICATION_ID = 12345
 
     }
@@ -54,22 +80,33 @@ class PomodoroTimerService : LifecycleService() {
     lateinit var timerstatemanager: TimerStatusManager
     override fun onCreate() {
         super.onCreate()
+        Intent(this, AppBlockService::class.java).also {
+            bindService(
+                Intent(this@PomodoroTimerService, AppBlockService::class.java),
+                connection,
+                Context.BIND_AUTO_CREATE
+            )
+        }
         getNotificationChannel(CHANNEL_ID, "Pomodoro Timer")
+
+
     }
-     private var alarmringtone:Ringtone? = null
+
+    private var alarmringtone: Ringtone? = null
     private var timerjob: Job? = null
-    private var id:Int = -1
+    private var id: Int = -1
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
         when (intent?.action) {
             ACTION_START_TIMER -> {
 
-               id = intent.getIntExtra(EXTRA_ID, 0)
+                id = intent.getIntExtra(EXTRA_ID, 0)
                 val remaining_time = intent.getLongExtra(REMAINING_TIME, 0)
+                val isWork = intent.getBooleanExtra(IS_WORK, false)
 
 
-                starttimer(remaining_time, id)
+                starttimer(remaining_time, id, isWork)
             }
 
             ACTION_PAUSE_TIMER -> {
@@ -79,30 +116,54 @@ class PomodoroTimerService : LifecycleService() {
             ACTION_FINISHED -> {
                 onFinish()
             }
+
             ACTION_STOPALARM -> {
-              stopAlarm()
+                stopAlarm()
             }
         }
         return START_STICKY
     }
 
     @SuppressLint("MissingPermission")
-    private fun starttimer(duration: Long, id: Int) {
-      val notidication = getServiceNotificationBuilder(id =id,title = "test" , content =duration , notificationStatus = NotificationStatus.Playing)
+    private fun starttimer(duration: Long, id: Int, isWork: Boolean) {
+        val notidication = getServiceNotificationBuilder(
+            id = id,
+            title = "test",
+            content = duration,
+            notificationStatus = NotificationStatus.Playing
+        )
+        if (isWork) {
+            mbinder = true
+            startService(
+                Intent(
+                    this@PomodoroTimerService,
+                    AppBlockService::class.java
+                )
+            )
+        } else {
+            mbinder = false
+            stopService(Intent(this@PomodoroTimerService, AppBlockService::class.java))
 
-        startForeground(NOTIFICATION_ID,notidication.build())
+        }
+        startForeground(NOTIFICATION_ID, notidication.build())
 
         timerjob?.cancel()
 
         timerjob = lifecycleScope.launch(Dispatchers.Default) {
             var updatetime = duration
-            timerstatemanager.updatestate(TimerState.Running(updatetime,id))
+            timerstatemanager.updatestate(TimerState.Running(updatetime, id))
             while (updatetime >= 0 && isActive) {
 
-               val updatedNotifcation  = getServiceNotificationBuilder(id = id, title = "test" , content =updatetime , notificationStatus = NotificationStatus.Playing)
-                NotificationManagerCompat.from(this@PomodoroTimerService).notify(NOTIFICATION_ID,updatedNotifcation.build())
+                val updatedNotifcation = getServiceNotificationBuilder(
+                    id = id,
+                    title = "test",
+                    content = updatetime,
+                    notificationStatus = NotificationStatus.Playing
+                )
+                NotificationManagerCompat.from(this@PomodoroTimerService)
+                    .notify(NOTIFICATION_ID, updatedNotifcation.build())
 
-                timerstatemanager.updatestate(TimerState.Running(updatetime,id))
+                timerstatemanager.updatestate(TimerState.Running(updatetime, id))
                 delay(TICK_INTERVAL)
                 updatetime -= TICK_INTERVAL
 
@@ -110,8 +171,14 @@ class PomodoroTimerService : LifecycleService() {
             }
             startAlarm()
             timerstatemanager.updatestate(TimerState.Finished(id))
-            val updatedNotifcation  = getServiceNotificationBuilder(id = id, title = "test" , content =updatetime , notificationStatus = NotificationStatus.Finished)
-            NotificationManagerCompat.from(this@PomodoroTimerService).notify(NOTIFICATION_ID,updatedNotifcation.build())
+            val updatedNotifcation = getServiceNotificationBuilder(
+                id = id,
+                title = "test",
+                content = updatetime,
+                notificationStatus = NotificationStatus.Finished
+            )
+            NotificationManagerCompat.from(this@PomodoroTimerService)
+                .notify(NOTIFICATION_ID, updatedNotifcation.build())
 
 
         }
@@ -120,57 +187,67 @@ class PomodoroTimerService : LifecycleService() {
 
     @SuppressLint("MissingPermission")
     private fun pausetime() {
-    Log.d("pause" , "at pause")
+        Log.d("pause", "at pause")
         if (timerjob != null && timerstatemanager.timerState.value is TimerState.Running) {
             val time = (timerstatemanager.timerState.value as TimerState.Running).time
-            Log.d("pause" , time.toString())
-            timerstatemanager.updatestate(TimerState.Paused(time,id))
-            val notidication = getServiceNotificationBuilder(id =id,title = "test" , content = time , notificationStatus = NotificationStatus.Paused)
-            startForeground(NOTIFICATION_ID,notidication.build())
+            Log.d("pause", time.toString())
+            timerstatemanager.updatestate(TimerState.Paused(time, id))
+            val notidication = getServiceNotificationBuilder(
+                id = id,
+                title = "test",
+                content = time,
+                notificationStatus = NotificationStatus.Paused
+            )
+            startForeground(NOTIFICATION_ID, notidication.build())
+
 
             timerjob!!.cancel()
 
 
         }
     }
-    private fun onFinish(){
+
+    private fun onFinish() {
         timerjob?.cancel()
         timerstatemanager.updatestate(null)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
     }
-    private fun stopAlarm(){
+
+    private fun stopAlarm() {
         alarmringtone?.takeIf { it.isPlaying }?.stop()
         alarmringtone = null
         NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID)
     }
-    private fun startAlarm(){
+
+    private fun startAlarm() {
         stopAlarm()
-        try{
-          val alarmuri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            alarmringtone = RingtoneManager.getRingtone(this,alarmuri)
-            alarmringtone?.let {
-                ringtone ->
-                ringtone.audioAttributes= AudioAttributes.Builder()
+        try {
+            val alarmuri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            alarmringtone = RingtoneManager.getRingtone(this, alarmuri)
+            alarmringtone?.let { ringtone ->
+                ringtone.audioAttributes = AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .build()
                 ringtone.isLooping = true
                 ringtone.play()
             }
 
-        }
-        catch (e:Exception){
-            Log.d("error" , e.message.toString())
+        } catch (e: Exception) {
+            Log.d("error", e.message.toString())
         }
     }
 
 
     override fun onDestroy() {
-           stopAlarm()
+        stopAlarm()
+        unbindService(connection)
         if (timerstatemanager.timerState.value is TimerState.Running) {
-            timerstatemanager.updatestate(TimerState.Paused(
-                (timerstatemanager.timerState.value as TimerState.Running).time,
-                id =id
-            ))
+            timerstatemanager.updatestate(
+                TimerState.Paused(
+                    (timerstatemanager.timerState.value as TimerState.Running).time,
+                    id = id
+                )
+            )
         } else {
             timerstatemanager.updatestate(null)
         }
@@ -194,14 +271,14 @@ class PomodoroTimerService : LifecycleService() {
     }
 
     private fun getServiceNotificationBuilder(
-        id:Int,
+        id: Int,
         title: String,
         content: Long,
-       notificationStatus: NotificationStatus
+        notificationStatus: NotificationStatus
     ): NotificationCompat.Builder {
 
-        val contentIntent = Intent(this, MainActivity::class.java).apply{
-            data ="pomodoroapp://stopwatch/${id}".toUri()
+        val contentIntent = Intent(this, MainActivity::class.java).apply {
+            data = "pomodoroapp://stopwatch/${id}".toUri()
         }
         val contentpedningintent = TaskStackBuilder.create(this).run {
             addNextIntentWithParentStack(contentIntent)
@@ -253,10 +330,10 @@ class PomodoroTimerService : LifecycleService() {
 
 
         if (notificationStatus != NotificationStatus.Finished) {
-              build .setOnlyAlertOnce(true)
+            build.setOnlyAlertOnce(true)
             if (notificationStatus.equals(NotificationStatus.Playing)) {
                 build.addAction(
-                R.drawable.ic_pause,
+                    R.drawable.ic_pause,
                     "Pause",
                     pausependingIntent
                 )
@@ -268,10 +345,9 @@ class PomodoroTimerService : LifecycleService() {
                 )
 
             }
-        }
-        else{
+        } else {
             build.addAction(
-               R.drawable.baseline_stop_24,
+                R.drawable.baseline_stop_24,
                 "Dismiss",
                 alarmpendingIntent
 
@@ -281,7 +357,8 @@ class PomodoroTimerService : LifecycleService() {
         return build
     }
 }
-enum class NotificationStatus{
+
+enum class NotificationStatus {
     Playing,
     Paused,
     Finished

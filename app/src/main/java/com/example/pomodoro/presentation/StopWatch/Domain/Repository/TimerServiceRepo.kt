@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface TimerServiceRepo {
 
     fun getTimerState(): Flow<TimerState>
-    fun startTimer(duration:Long,id:Int)
+    fun startTimer(duration:Long,id:Int,isWork:Boolean)
     fun pauseTimer()
     fun resetTimer()
 
