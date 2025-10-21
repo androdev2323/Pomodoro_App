@@ -4,6 +4,9 @@ import android.content.Context
 import com.example.pomodoro.Data.local.Dao.TaskDao
 import com.example.pomodoro.domain.repository.taskrepo
 import com.example.pomodoro.Data.local.repository.taskrepoImpl
+import com.example.pomodoro.presentation.AppBlock.Domain.Repository.installedPackageRepo
+import com.example.pomodoro.presentation.AppBlock.data.InstalledAppsDataSource
+import com.example.pomodoro.presentation.AppBlock.data.Repository.InstalledPackageRepoImpl
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarDataSource
 import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarRepoImpl
 import com.example.pomodoro.presentation.HomeScreen.Repository.CalednarRepo
@@ -29,13 +32,13 @@ object RepositoryModule {
         return CalendarDataSource()
     }
 
- @Provides
+    @Provides
     @Singleton
     fun provideCalendarRepo(calendarDataSource: CalendarDataSource): CalednarRepo {
         return CalendarRepoImpl(calendarDataSource)
     }
 
-   @Provides
+    @Provides
     @Singleton
     fun providesTaskRepo(taskDao: TaskDao): taskrepo {
         return taskrepoImpl(taskDao)
@@ -45,5 +48,18 @@ object RepositoryModule {
     @Singleton
     fun ProvidesTimerServiceRepo(@ApplicationContext context: Context, timerStatusManager: TimerStatusManager): TimerServiceRepo {
         return TimerServiceRepoImpl(context = context, timerStatusManager = timerStatusManager)
+    }
+
+    @Provides
+    @Singleton
+    fun providesInstalledAppsDataSource(@ApplicationContext context: Context):InstalledAppsDataSource{
+        return InstalledAppsDataSource(context)
+
+    }
+    
+    @Provides
+    @Singleton
+    fun providesInstalledAppsRepo(installedAppsDataSource: InstalledAppsDataSource): installedPackageRepo{
+        return InstalledPackageRepoImpl(installedAppsDataSource)
     }
 }

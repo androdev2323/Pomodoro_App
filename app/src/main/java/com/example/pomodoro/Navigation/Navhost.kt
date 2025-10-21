@@ -29,6 +29,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import com.example.pomodoro.presentation.AppBlock.Presentation.AppBlockScreen
+import com.example.pomodoro.presentation.AppBlock.Presentation.AppBlockScreenRoute
 import com.example.pomodoro.presentation.HomeScreen.Task_Screen
 import com.example.pomodoro.presentation.StopWatch.StopwatchScreen
 
@@ -120,7 +122,7 @@ fun mainNavhost(
                 AppNavHost(navController = rememberNavController())
             }
             composable<PomodoroRoutes.appblock> {
-                Text(PomodoroRoutes.appblock.toString())
+                AppBlockScreenRoute()
             }
             composable<PomodoroRoutes.about> {
                 Text(PomodoroRoutes.about.toString())
