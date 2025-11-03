@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.pomodoro.Data.PomodoroDatabase
 import com.example.pomodoro.Data.local.Dao.TaskDao
+import com.example.pomodoro.presentation.AppBlock.data.local.dao.InstalledPackageDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,6 +30,12 @@ object RoomModule {
     @Singleton
     fun ProvidesTaskDao(pomodoroDatabase: PomodoroDatabase): TaskDao {
       return pomodoroDatabase.TaskDao()
+    }
+
+    @Provides
+    @Singleton
+    fun ProvidesInstalledPackageDao(pomodoroDatabase: PomodoroDatabase): InstalledPackageDao{
+        return  pomodoroDatabase.InstalledPackageDao()
     }
 
 }

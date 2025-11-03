@@ -1,21 +1,18 @@
 package com.example.pomodoro.presentation.AppBlock.data.Repository
 
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
-import com.example.pomodoro.presentation.AppBlock.Domain.Model.InstalledPackage
-import com.example.pomodoro.presentation.AppBlock.Domain.Repository.installedPackageRepo
-import com.example.pomodoro.presentation.AppBlock.data.InstalledAppsDataSource
-import kotlinx.coroutines.Dispatchers
+import com.example.pomodoro.presentation.AppBlock.Domain.Repository.InstalledPackageRepo
+import com.example.pomodoro.presentation.AppBlock.data.local.Entity.InstalledPackage
+import com.example.pomodoro.presentation.AppBlock.data.local.dao.InstalledPackageDao
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 
-class InstalledPackageRepoImpl(val datasource:InstalledAppsDataSource):installedPackageRepo {
-    override fun getInstalledTask(): Flow<List<InstalledPackage>> = flow {
-
-           val list= datasource.getListOfPackages()
-            emit(list)
-        }.flowOn(Dispatchers.IO)
-
+class InstalledPackageRepoImpl(private val dao: InstalledPackageDao):InstalledPackageRepo {
+    override suspend fun insertAll(installedPackage: List<InstalledPackage>) {
+        return dao.insertAll(installedPackage)
     }
+
+    override fun getAllApps(): Flow<List<InstalledPackage>> {
+        return dao.getAllInstalledPackages()
+    }
+
+}

@@ -1,11 +1,10 @@
 package com.example.pomodoro.presentation.AppBlock.data
 
 import android.content.Context
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
-import com.example.pomodoro.presentation.AppBlock.Domain.Model.InstalledPackage
+import com.example.pomodoro.presentation.AppBlock.data.local.Entity.InstalledPackage
 
 import dagger.hilt.android.qualifiers.ApplicationContext
 
