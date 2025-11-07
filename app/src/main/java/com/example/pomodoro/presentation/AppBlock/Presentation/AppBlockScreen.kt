@@ -16,16 +16,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.pomodoro.presentation.AppBlock.Components.AppBlockSearchBar
 import com.example.pomodoro.presentation.AppBlock.Components.ToggleAppComponent
+import com.example.pomodoro.presentation.AppBlock.data.local.Entity.InstalledPackage
 
 @Composable
 fun AppBlockScreenRoute(viewmodel: AppBlockScreenViewmodel = hiltViewModel()) {
-    val state by viewmodel.searchBarUiState.collectAsStateWithLifecycle()
+    val state by viewmodel.searchBarUiState2.collectAsStateWithLifecycle()
     val searchQuery by viewmodel.searchQuery.collectAsStateWithLifecycle()
     AppBlockScreen(
         searchBarUistate = state,
         searchQuery = searchQuery,
         onQueryChanged = viewmodel::onQueryChanged,
-        onClear = viewmodel::onClear
+        onClear = viewmodel::onClear,
+        onSwitchClick = viewmodel::OnAppDeselected
 
     )
 }
@@ -35,7 +37,8 @@ internal fun AppBlockScreen(
     searchBarUistate: SearchBarUiState,
     searchQuery: String,
     onQueryChanged: (String) -> Unit,
-    onClear: () -> Unit
+    onClear: () -> Unit,
+    onSwitchClick:(InstalledPackage) -> Unit
 ) {
     Column(){
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
@@ -51,7 +54,9 @@ internal fun AppBlockScreen(
                         ToggleAppComponent(
                             packageinfo = app.packageName,
                             appicon = app.appIcon,
-                            appname = app.appName
+                            appname = app.appName,
+                            checked = app.isenabled,
+                            onCheckChanged = { onSwitchClick(app)}
                         )
                     }
 
@@ -64,7 +69,9 @@ internal fun AppBlockScreen(
                         ToggleAppComponent(
                             packageinfo = app.packageName,
                             appicon = app.appIcon,
-                            appname = app.appName
+                            appname = app.appName,
+                            checked = app.isenabled,
+                            onCheckChanged = { onSwitchClick(app)}
                         )
                     }
 

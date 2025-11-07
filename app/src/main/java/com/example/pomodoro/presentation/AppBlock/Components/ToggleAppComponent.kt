@@ -49,7 +49,7 @@ import com.example.pomodoro.R
 import com.example.pomodoro.ui.theme.PomodoroTheme
 
 @Composable
-fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitmap) {
+fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitmap,checked:Boolean,onCheckChanged:() -> Unit) {
     Row(
         modifier = Modifier
 
@@ -76,8 +76,8 @@ fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitma
         }
         Switch(
 
-            checked = true,
-            onCheckedChange = {}
+            checked = checked,
+            onCheckedChange = { onCheckChanged ()}
         )
 
 
@@ -111,7 +111,7 @@ private fun ToggleAppComponentPreview() {
             val context = LocalContext.current
             ResourcesCompat.getDrawable(context.resources, R.drawable.ic_pause, null)!!.toBitmap()
                 .asImageBitmap()
-                ?.let { ToggleAppComponent("packageinfo", "appname", it) }
+                ?.let { ToggleAppComponent("packageinfo", "appname", it,false,{}) }
 
         }
     }

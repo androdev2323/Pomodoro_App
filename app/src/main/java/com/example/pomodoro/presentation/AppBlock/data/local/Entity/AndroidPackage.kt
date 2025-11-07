@@ -4,10 +4,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
-data class InstalledPackage(
+@Entity(tableName = "Apps")
+data class AndroidPackage(
     val appName:String,
-    val appIcon:ImageBitmap,
-    val packageName:String,
+
+    @PrimaryKey val packageName:String,
     val isenabled:Boolean = false
 )
