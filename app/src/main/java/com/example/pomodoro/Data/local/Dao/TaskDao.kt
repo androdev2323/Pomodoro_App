@@ -36,8 +36,9 @@ interface TaskDao {
     )
 
     @Query("UPDATE Task SET remaining_time=:remaining_time WHERE taskid=:id")
-  suspend  fun updateremainingtime(
-        id: Int, remaining_time: Int
+  suspend  fun updateRemainingTime(
+        id: Int,
+        remaining_time: Int
     )
   @Delete
   suspend  fun deletetask(task: Task)

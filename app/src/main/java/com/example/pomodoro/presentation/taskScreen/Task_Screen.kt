@@ -1,6 +1,8 @@
 package com.example.pomodoro.presentation.HomeScreen
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -79,6 +81,7 @@ import com.example.pomodoro.presentation.taskScreen.Components.dateRow
 import java.time.LocalDate
 
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun Task_Screen(
     modifier: Modifier = Modifier,
@@ -102,7 +105,7 @@ fun Task_Screen(
             totaltask = state.totalTaskCount,
             onDateClicked = { viewmodel.onDateClicked(it) },
             OnTaskClicked = {
-                if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) navController.navigate(
+               /* if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) */ navController.navigate(
                     route = HomeScreenRoutes.Stopwatch(it)
                 )
             },
@@ -128,6 +131,7 @@ fun Task_Screen(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 internal fun TaskScreen(
     state: HomeScreenState,
@@ -146,7 +150,7 @@ internal fun TaskScreen(
     onTaskExpanded: (Long?) -> Unit,
     onTaskCollapsed: (Long?) -> Unit
 ) {
-    Log.d("expanded",uiState.expandedTaskId.toString())
+
     Scaffold(
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
@@ -179,7 +183,7 @@ internal fun TaskScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) {
-        Log.d("order", state.sortedOrder.name)
+
         Column(
             modifier = Modifier
                 .padding(it)

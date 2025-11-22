@@ -54,7 +54,7 @@ fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitma
         modifier = Modifier
 
             .fillMaxWidth()
-            .height(100.dp)
+            .height(130.dp)
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

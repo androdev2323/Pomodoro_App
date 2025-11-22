@@ -63,13 +63,18 @@ fun StopwatchScreen(
 internal fun StopwatchScreenContent(
     modifier: Modifier = Modifier,
     state: StopwatchScreenState,
-    uistate:ViewmodelState,
+    uistate: ViewmodelState,
     onPause: () -> Unit,
     onResumed: (Long) -> Unit,
     onFinished: () -> Unit
 ) {
 
-    val duration = state.taskitem!!.remaining_time
+    val duration =
+        if (state.taskitem!!.session_type == PomdoroContract.POMODORO_SHORTBREAK) PomdoroContract.DEFAULT_SHORTBREAKDURATION
+        else if (state.taskitem.session_type == PomdoroContract.POMODORO_WORK) PomdoroContract.DEFAULT_WORKDURATION
+        else PomdoroContract.DEFAULT_LONGBREAKDURATION
+
+
     val animationid = if (state.taskitem.session_type == PomdoroContract.POMODORO_SHORTBREAK
         || state.taskitem.session_type == PomdoroContract.POMODORO_lONGBREAK
     ) {
@@ -122,7 +127,7 @@ internal fun StopwatchScreenContent(
                 text = if (state.taskitem.session_type == PomdoroContract.POMODORO_WORK) {
                     "Stay focus for ${TimeFormatter.longtoTime(state.taskitem.remaining_time.toLong())}"
                 } else {
-                     "Have chill untill ${TimeFormatter.longtoTime(state.taskitem.remaining_time.toLong())}"
+                    "Have chill untill ${TimeFormatter.longtoTime(duration.toLong())}"
                 },
                 style = MaterialTheme.typography.titleMedium
             )
@@ -169,7 +174,7 @@ internal fun StopwatchScreenContent(
                     }
 
                     is StopWatchState.Finished -> {
-                        Log.d("test" , uistate.isEnabled.toString())
+
                         IconButton(
                             enabled = uistate.isEnabled,
                             modifier = Modifier

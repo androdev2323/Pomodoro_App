@@ -12,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,7 +48,8 @@ fun DatePickerEditText(onDateSelected: (Long) -> Unit) {
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }
-        })
+        },
+            colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = MaterialTheme.colorScheme.background, focusedContainerColor = MaterialTheme.colorScheme.background))
         if (isdatepickervsible) {
             datePicker(onDateSelected = {
                 selectedDate = it?.let { TimeFormatter.longtoString(it) }!!

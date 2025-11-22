@@ -19,7 +19,7 @@ class CalendarDataSource(){
         val firstdayofweek = starDate.with(DayOfWeek.MONDAY)
         val enddayofweek = firstdayofweek.plusDays(7)
         val getdatesinbetween=getinbetween(firstdayofweek,enddayofweek)
-        Log.d("dates",enddayofweek.toString())
+
         return getdatesinbetween
 
     }

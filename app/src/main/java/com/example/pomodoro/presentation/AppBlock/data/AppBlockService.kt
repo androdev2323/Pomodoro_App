@@ -21,8 +21,12 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.pomodoro.presentation.AppBlock.Components.ServiceSafeBlockedSheet
+import com.example.pomodoro.presentation.AppBlock.Domain.Repository.InstalledPackageRepo
+import com.example.pomodoro.presentation.AppBlock.data.local.Entity.AndroidPackage
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -30,8 +34,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
+import javax.inject.Inject
 
 val TAG ="AppBlockService"
+@AndroidEntryPoint
 class AppBlockService: Service(), LifecycleOwner, SavedStateRegistryOwner {
 
     private lateinit var windowManager: WindowManager
@@ -39,6 +45,8 @@ class AppBlockService: Service(), LifecycleOwner, SavedStateRegistryOwner {
     private var isShown = false
 
 
+    @Inject
+    lateinit var installedPackageRepo: InstalledPackageRepo
     private val lifecycleRegistry = LifecycleRegistry(this)
     private lateinit var savedStateRegistryController: SavedStateRegistryController
     override val lifecycle: Lifecycle get() = lifecycleRegistry
@@ -47,6 +55,8 @@ class AppBlockService: Service(), LifecycleOwner, SavedStateRegistryOwner {
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+    private var pollingJob: Job? = null
+   private var BlockSet = emptySet<String>()
     private val binder= LocalBinder()
     inner class LocalBinder: Binder(){
         fun getService():AppBlockService =  this@AppBlockService
@@ -66,13 +76,16 @@ class AppBlockService: Service(), LifecycleOwner, SavedStateRegistryOwner {
 
         Log.d(TAG, "onCreate: Service created.")
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        serviceScope.launch {
+            installedPackageRepo.getAllApps().collect {
+                BlockSet = it.filter { it.isenabled== true }.map { it.packageName }.toSet()
+            }
+        }
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand: Received start command.")
-
-
-
 
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -82,31 +95,35 @@ class AppBlockService: Service(), LifecycleOwner, SavedStateRegistryOwner {
         return START_STICKY
     }
 
-    private fun startPollingLoop() {
-        serviceScope.launch {
-
-            while (isActive) {
-                checkUsageStatsAndOverlay()
-
-                delay(1500L)
-            }
-        }
+   fun startPollingLoop() {
+       if (pollingJob?.isActive == true) {
+           return
+       }
+       pollingJob = serviceScope.launch {
+           while (isActive) {
+               checkUsageStatsAndOverlay(blockset = BlockSet)
+               delay(1500L)
+           }
+       }
     }
 
-    private fun checkUsageStatsAndOverlay() {
-        val foregroundApp = getForegroundApp(this)
-        val packageToBlock = "app.revanced.android.youtube"
-        Log.d(TAG,"${foregroundApp} ${packageToBlock} ")
+    private fun checkUsageStatsAndOverlay(blockset: Set<String> ) {
 
-        if (foregroundApp == packageToBlock && !isShown) {
+        val foregroundApp = getForegroundApp(this)
+
+
+        if ((foregroundApp in blockset)  && !isShown) {
             showOverlay()
-        } else if (foregroundApp != packageToBlock && isShown) {
+        } else if ((foregroundApp !in blockset) && isShown) {
             removeOverlay()
         }
     }
-    private fun stopUsageStatsCheck(){
-        removeOverlay()
-        serviceScope.cancel()
+     fun stopUsageStatsCheck(){
+         pollingJob?.cancel()
+         pollingJob = null
+         if(isShown){
+             removeOverlay()
+         }
     }
 
     private fun showOverlay() {

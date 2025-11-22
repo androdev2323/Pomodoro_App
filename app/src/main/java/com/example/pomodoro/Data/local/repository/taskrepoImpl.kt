@@ -1,16 +1,15 @@
 package com.example.pomodoro.Data.local.repository
 
-import android.util.Log
+
 import com.example.pomodoro.Data.PomdoroContract
 import com.example.pomodoro.Data.local.Dao.TaskDao
 import com.example.pomodoro.Data.local.Entity.Task
 import com.example.pomodoro.Util.NetworkResult
 import com.example.pomodoro.domain.repository.taskrepo
-import kotlinx.coroutines.Dispatchers
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+
 import kotlinx.coroutines.flow.map
 
 class taskrepoImpl(val taskDao: TaskDao):taskrepo {
@@ -73,6 +72,7 @@ class taskrepoImpl(val taskDao: TaskDao):taskrepo {
 
     override suspend fun updateremainingtime(task:Task, remaining_time: Int) {
 
+        taskDao.updateRemainingTime(task.taskid.toInt(),remaining_time)
     }
 
     override suspend fun deletetask(task: Task) {

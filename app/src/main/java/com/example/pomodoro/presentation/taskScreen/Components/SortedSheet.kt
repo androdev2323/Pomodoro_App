@@ -72,7 +72,7 @@ fun SortedSheet(sortedOrder: SortedOrder, onDismiss: (selectedoption: SortedOrde
                                 unselectedColor = MaterialTheme.colorScheme.tertiary
                             )
                         )
-                        Text(text = it.name, style = MaterialTheme.typography.bodyMedium)
+                        Text(text = it.displayName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }

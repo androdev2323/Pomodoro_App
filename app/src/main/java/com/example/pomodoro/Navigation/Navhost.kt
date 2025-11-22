@@ -1,6 +1,8 @@
 package com.example.pomodoro.Navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,6 +36,7 @@ import com.example.pomodoro.presentation.AppBlock.Presentation.AppBlockScreenRou
 import com.example.pomodoro.presentation.HomeScreen.Task_Screen
 import com.example.pomodoro.presentation.StopWatch.StopwatchScreen
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
@@ -64,18 +67,7 @@ fun mainNavhost(
                 PomodoroRoutes.mainroutes.forEach() { route ->
                     val isselected =
                         navBackStackEntry?.destination?.route == route.routeClassname
-                    Log.d("route", navBackStackEntry?.destination?.route.toString() +
 
-
-
-
-
-
-
-
-
-                        " " + route.routeClassname
-                    )
                     NavigationBarItem(
                         selected = isselected,
                         icon = {

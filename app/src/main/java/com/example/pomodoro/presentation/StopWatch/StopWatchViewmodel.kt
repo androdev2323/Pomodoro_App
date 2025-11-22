@@ -60,9 +60,7 @@ private val isEnabled = MutableStateFlow(true)
 
             emit(StopwatchScreenState(taskitem = task, timerState = StopWatchState.Pause((task.remaining_time) .toLong())))
         }
-            .onEach {
-                Log.d("current state" ,it.toString())
-            }
+
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -70,9 +68,14 @@ private val isEnabled = MutableStateFlow(true)
     )
     fun onPaused() {
         serviceRepo.pauseTimer()
+        viewModelScope.launch {
+
+            taskrepo.updateremainingtime(state.value.taskitem!!, (state.value.timerState as StopWatchState.Running).time.toInt())
+        }
     }
 
     fun onResumed(time: Long) {
+
         serviceRepo.startTimer(time, id = taskk.id, isWork =state.value.taskitem?.session_type.equals(POMODORO_WORK ))
     }
     fun onFinished(){

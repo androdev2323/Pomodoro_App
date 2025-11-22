@@ -31,7 +31,7 @@ class HomeScreenViewmodel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _sortingOrder = MutableStateFlow(SortedOrder.SORT_BY_RECENT)
+    private val _sortingOrder = MutableStateFlow(SortedOrder.NAME)
     private val _expandedid = MutableStateFlow<Long?>(null)
 
 
@@ -81,9 +81,9 @@ class HomeScreenViewmodel @Inject constructor(
         if (taskResult is NetworkResult.Success) {
             val unsortedList = taskResult.data
             val sortedList = when (order) {
-                SortedOrder.SORT_BY_RECENT -> unsortedList
-                SortedOrder.SORT_BY_DURATION -> unsortedList.sortedByDescending { it.duration }
-                SortedOrder.SORT_BY_NAME -> unsortedList.sortedBy { it.name }
+                SortedOrder.RECENT -> unsortedList
+                SortedOrder.DURATION -> unsortedList.sortedByDescending { it.duration }
+                SortedOrder.NAME -> unsortedList.sortedBy { it.name }
             }
 
 
@@ -101,7 +101,7 @@ class HomeScreenViewmodel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = HomeScreenState(isLoading = true, sortedOrder = SortedOrder.SORT_BY_RECENT)
+        initialValue = HomeScreenState(isLoading = true, sortedOrder = SortedOrder.RECENT)
     )
 
        fun onSortDialogStatusChanged(newStatus: sortDialog) {
@@ -161,8 +161,8 @@ class HomeScreenViewmodel @Inject constructor(
 
 
 
-enum class SortedOrder {
-    SORT_BY_RECENT,
-    SORT_BY_DURATION,
-    SORT_BY_NAME,
+enum class SortedOrder(val displayName: String) {
+    RECENT("Sort by Recent"),
+    DURATION("Sort by Duration"),
+    NAME("Sort by Name")
 }

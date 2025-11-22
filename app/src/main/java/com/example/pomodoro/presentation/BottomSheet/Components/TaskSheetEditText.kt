@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -17,6 +19,8 @@ fun TaskEdittext( title:String, hint:String,value:String,onValueChange: (String)
    Column(){
      Text(text = title, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
        Spacer(modifier = Modifier.height(5.dp))
-       OutlinedTextField(value =value , onValueChange ={ onValueChange(it) } )
+       OutlinedTextField(value =value , onValueChange ={ onValueChange(it) },
+           colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.background,unfocusedContainerColor = MaterialTheme.colorScheme.background)
+       )
    }
 }

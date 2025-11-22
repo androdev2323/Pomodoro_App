@@ -14,6 +14,7 @@ import android.media.AudioAttributes
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.IBinder
+import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -43,21 +44,30 @@ private const val TICK_INTERVAL = 1000L
 class PomodoroTimerService : LifecycleService() {
     private lateinit var AppBlockServices: AppBlockService
     private var mbinder = false
+    private var pendingWork:Boolean? = null
     private val connection =
         object : ServiceConnection {
             override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
                 val binder = p1 as AppBlockService.LocalBinder
                 AppBlockServices = binder.getService()
+                pendingWork?.let { isWork ->
+                    if (isWork) {
+                        AppBlockServices.startPollingLoop()
+                    } else {
+                        AppBlockServices.stopUsageStatsCheck()
+                    }
+                    pendingWork = null
+                }
+
 
                 mbinder = true;
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
-                Log.d("dc", "reached and reconnected")
-                if (mbinder) {
-                    startService(Intent(this@PomodoroTimerService, AppBlockService::class.java))
 
-                }
+                startService(Intent(this@PomodoroTimerService, AppBlockService::class.java))
+
+
             }
 
         }
@@ -132,24 +142,26 @@ class PomodoroTimerService : LifecycleService() {
             content = duration,
             notificationStatus = NotificationStatus.Playing
         )
-        if (isWork) {
-            mbinder = true
-            startService(
-                Intent(
-                    this@PomodoroTimerService,
-                    AppBlockService::class.java
-                )
-            )
-        } else {
-            mbinder = false
-            stopService(Intent(this@PomodoroTimerService, AppBlockService::class.java))
 
+        if (mbinder) {
+            if (isWork) {
+                AppBlockServices.startPollingLoop()
+
+            } else {
+
+                AppBlockServices.stopUsageStatsCheck()
+
+
+            }
+        } else {
+            pendingWork = isWork
         }
         startForeground(NOTIFICATION_ID, notidication.build())
 
         timerjob?.cancel()
 
         timerjob = lifecycleScope.launch(Dispatchers.Default) {
+            val endtime = SystemClock.elapsedRealtime() + duration
             var updatetime = duration
             timerstatemanager.updatestate(TimerState.Running(updatetime, id))
             while (updatetime >= 0 && isActive) {
@@ -165,7 +177,7 @@ class PomodoroTimerService : LifecycleService() {
 
                 timerstatemanager.updatestate(TimerState.Running(updatetime, id))
                 delay(TICK_INTERVAL)
-                updatetime -= TICK_INTERVAL
+               updatetime = (endtime - SystemClock.elapsedRealtime()).coerceAtLeast(0)
 
 
             }
@@ -187,10 +199,10 @@ class PomodoroTimerService : LifecycleService() {
 
     @SuppressLint("MissingPermission")
     private fun pausetime() {
-        Log.d("pause", "at pause")
+
         if (timerjob != null && timerstatemanager.timerState.value is TimerState.Running) {
             val time = (timerstatemanager.timerState.value as TimerState.Running).time
-            Log.d("pause", time.toString())
+
             timerstatemanager.updatestate(TimerState.Paused(time, id))
             val notidication = getServiceNotificationBuilder(
                 id = id,
@@ -209,6 +221,7 @@ class PomodoroTimerService : LifecycleService() {
 
     private fun onFinish() {
         timerjob?.cancel()
+        stopAlarm()
         timerstatemanager.updatestate(null)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
     }
@@ -233,7 +246,7 @@ class PomodoroTimerService : LifecycleService() {
             }
 
         } catch (e: Exception) {
-            Log.d("error", e.message.toString())
+
         }
     }
 
@@ -346,6 +359,8 @@ class PomodoroTimerService : LifecycleService() {
 
             }
         } else {
+            build.setContentTitle("Time's up")
+            build.setContentText("Timer Finished")
             build.addAction(
                 R.drawable.baseline_stop_24,
                 "Dismiss",
