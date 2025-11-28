@@ -7,8 +7,10 @@ import android.widget.LinearLayout
 import android.widget.NumberPicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.pomodoro.R
@@ -18,6 +20,7 @@ import com.example.pomodoro.R
 fun CustomNumberPicker(
     selectedValue:Int,
     list:List<Int>,
+    textColor:Int = MaterialTheme.colorScheme.onBackground.toArgb(),
     onValueChange:(Int) -> Unit
 ){
     AndroidView(
@@ -46,6 +49,7 @@ fun CustomNumberPicker(
                 onValueChange(newVal)
             }
             numberPicker.dividerPadding =   16
+            numberPicker.textColor = textColor
             numberPicker
         },
         update = {

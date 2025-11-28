@@ -31,6 +31,7 @@ import com.example.pomodoro.presentation.AppBlock.Components.AppBlockSearchBar
 import com.example.pomodoro.presentation.AppBlock.Components.EmptySearchContent
 import com.example.pomodoro.presentation.AppBlock.Components.ToggleAppComponent
 import com.example.pomodoro.presentation.AppBlock.data.local.Entity.InstalledPackage
+import com.example.pomodoro.presentation.components.PomodoroTopappbar
 
 @Composable
 fun AppBlockScreenRoute(viewmodel: AppBlockScreenViewmodel = hiltViewModel()) {
@@ -38,6 +39,10 @@ fun AppBlockScreenRoute(viewmodel: AppBlockScreenViewmodel = hiltViewModel()) {
     val changes by viewmodel.isChanged.collectAsStateWithLifecycle()
     val searchQuery by viewmodel.searchQuery.collectAsStateWithLifecycle()
     Scaffold(
+        topBar = {
+         PomodoroTopappbar(title = "AppBlock")
+        },
+
         floatingActionButton = {
             AnimatedVisibility(
                 visible = changes,
