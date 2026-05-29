@@ -1,21 +1,13 @@
 package com.example.pomodoro.presentation.HomeScreen
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,28 +17,21 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,25 +42,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.Insets
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pomodoro.Data.local.Entity.Task
 import com.example.pomodoro.Navigation.HomeScreenRoutes
 
 import com.example.pomodoro.R
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomEvents
-import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetContent
 import com.example.pomodoro.presentation.BottomSheet.TaskBottomSheetViewModel
 import com.example.pomodoro.presentation.BottomSheet.Task_BottomSheet
-import com.example.pomodoro.presentation.HomeScreen.Entity.CalendarUi
 import com.example.pomodoro.presentation.taskScreen.Components.DailyTaskCard
 import com.example.pomodoro.presentation.taskScreen.Components.RowActions
 import com.example.pomodoro.presentation.taskScreen.Components.SortedSheet
 import com.example.pomodoro.presentation.taskScreen.Components.SwipeToReveal
-import com.example.pomodoro.presentation.taskScreen.Components.TaskDetailElement
 import com.example.pomodoro.presentation.taskScreen.Components.TaskItemCard
 import com.example.pomodoro.presentation.taskScreen.Components.dateRow
 import java.time.LocalDate
@@ -85,45 +65,54 @@ import java.time.LocalDate
 @Composable
 fun Task_Screen(
     modifier: Modifier = Modifier,
-    viewmodel: HomeScreenViewmodel = hiltViewModel(),
+    homeScreenViewmodel: HomeScreenViewmodel = hiltViewModel(),
+    taskbottomviewmodel: TaskBottomSheetViewModel = hiltViewModel(),
     navController: NavController,
 ) {
-    val state by viewmodel.homescreenState.collectAsStateWithLifecycle()
-    val uiState by viewmodel.homeScreenUiState.collectAsStateWithLifecycle()
+    val state by homeScreenViewmodel.homescreenState.collectAsStateWithLifecycle()
+    val uiState by homeScreenViewmodel.homeScreenUiState.collectAsStateWithLifecycle()
+
     if (state.dates != null) {
         TaskScreen(
             state = state,
             uiState = uiState,
             onArrowLeftClicked = {
-                viewmodel.onCalendarPageLeft()
+                homeScreenViewmodel.onCalendarPageLeft()
 
             },
             onArrowRightClicked = {
-                viewmodel.onCalendarPageRight()
+                homeScreenViewmodel.onCalendarPageRight()
             },
             completedtask = state.completedTaskCount,
             totaltask = state.totalTaskCount,
-            onDateClicked = { viewmodel.onDateClicked(it) },
+            onDateClicked = { homeScreenViewmodel.onDateClicked(it) },
             OnTaskClicked = {
-               /* if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) */ navController.navigate(
-                    route = HomeScreenRoutes.Stopwatch(it)
-                )
+                /* if (!(state.dates?.selecteddate?.date!!.isBefore(LocalDate.now()))) */ navController.navigate(
+                route = HomeScreenRoutes.Stopwatch(it)
+            )
             },
             onSortClicked = {
-                viewmodel.onSortDialogStatusChanged(it)
+                homeScreenViewmodel.onSortDialogStatusChanged(it)
             },
             onSortOrderDismissed = {
-                viewmodel.onSortDialogDismissed(it)
+                homeScreenViewmodel.onSortDialogDismissed(it)
             },
             onDeleteClicked = {
-                viewmodel.onDeleteTask(it)
+                homeScreenViewmodel.onDeleteTask(it)
             },
             onTaskExpanded = {
-                viewmodel.changeExpandedId(it)
+                homeScreenViewmodel.changeExpandedId(it)
             },
             onTaskCollapsed = {
-                viewmodel.changeExpandedId(null)
-            }
+                homeScreenViewmodel.changeExpandedId(null)
+            },
+            onAddTaskClicked = { navController.navigate(HomeScreenRoutes.TaskEditScreen) },
+
+            OnTaskEditClicked ={   name,duration,id -> taskbottomviewmodel.action(TaskBottomEvents.OnShowBottomSheet(
+                name =name,
+                duration = duration,
+                id = id
+            ))} ,
         )
     }
 
@@ -133,13 +122,13 @@ fun Task_Screen(
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-internal fun TaskScreen(
+private fun TaskScreen(
     state: HomeScreenState,
     uiState: UiState,
     totaltask: Int,
     completedtask: Int,
     taskbottomviewmodel: TaskBottomSheetViewModel = hiltViewModel(),
-    onAddTaskClicked: () -> Unit = { taskbottomviewmodel.action(TaskBottomEvents.OnShowBottomSheet) },
+    onAddTaskClicked: () -> Unit = {  },
     onArrowLeftClicked: () -> Unit,
     onArrowRightClicked: () -> Unit,
     onDateClicked: (LocalDate) -> Unit,
@@ -148,7 +137,8 @@ internal fun TaskScreen(
     OnTaskClicked: (Int) -> Unit,
     onDeleteClicked: (Task) -> Unit,
     onTaskExpanded: (Long?) -> Unit,
-    onTaskCollapsed: (Long?) -> Unit
+    onTaskCollapsed: (Long?) -> Unit,
+    OnTaskEditClicked:(String,Int,Int) -> Unit
 ) {
 
     Scaffold(
@@ -234,7 +224,7 @@ internal fun TaskScreen(
                             icon = Icons.Default.Delete
                         )
                         RowActions(
-                            onClick = { },
+                            onClick = { OnTaskEditClicked(task.name,task.duration,task.taskid.toInt())},
                             backgroundColor = Color.Gray.copy(alpha = 0.7f),
                             icon = Icons.Default.Create
                         )

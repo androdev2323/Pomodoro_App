@@ -109,7 +109,6 @@ class HomeScreenViewmodel @Inject constructor(
        }
 
     fun onDateClicked(date: LocalDate) {
-
         _selectedDate.value = date
     }
 
@@ -118,8 +117,7 @@ class HomeScreenViewmodel @Inject constructor(
     }
 
     fun onSortDialogDismissed(sortedOrder: SortedOrder){
-
-      onSortOrderChanged(sortedOrder)
+        onSortOrderChanged(sortedOrder)
         onSortDialogStatusChanged(sortDialog.none)
     }
 

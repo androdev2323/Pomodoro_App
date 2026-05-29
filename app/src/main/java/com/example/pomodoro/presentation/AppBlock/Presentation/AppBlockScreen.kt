@@ -40,7 +40,7 @@ fun AppBlockScreenRoute(viewmodel: AppBlockScreenViewmodel = hiltViewModel()) {
     val searchQuery by viewmodel.searchQuery.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
-         PomodoroTopappbar(title = "AppBlock")
+         PomodoroTopappbar(title = "")
         },
 
         floatingActionButton = {

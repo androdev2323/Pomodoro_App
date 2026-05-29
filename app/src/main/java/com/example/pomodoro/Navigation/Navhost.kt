@@ -35,6 +35,7 @@ import com.example.pomodoro.presentation.AppBlock.Presentation.AppBlockScreen
 import com.example.pomodoro.presentation.AppBlock.Presentation.AppBlockScreenRoute
 import com.example.pomodoro.presentation.HomeScreen.Task_Screen
 import com.example.pomodoro.presentation.StopWatch.StopwatchScreen
+import com.example.pomodoro.presentation.TaskEditScreen.TaskEditScreen
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -52,6 +53,9 @@ fun AppNavHost(
         ) {
 
             StopwatchScreen()
+        }
+        composable<HomeScreenRoutes.TaskEditScreen> {
+            TaskEditScreen { navController.navigate(route = HomeScreenRoutes.Home) }
         }
     }
 }

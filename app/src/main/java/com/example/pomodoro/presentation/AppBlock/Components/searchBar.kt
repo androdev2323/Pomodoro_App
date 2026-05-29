@@ -25,11 +25,16 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.DropShadowScope
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.pomodoro.R
 
@@ -43,7 +48,13 @@ fun AppBlockSearchBar(
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(10.dp)
+                .dropShadow(shape = RoundedCornerShape(size=10.dp), shadow = Shadow(
+                    radius = 5.dp,
+                    color = Color.Black.copy(alpha = 0.08f),
+                    offset = DpOffset(0.dp, 3.dp) ))
+               ,
+
             value = searchQuery,
             placeholder = { Text(text = "Search for Apps") },
             onValueChange = { onQueryChanged(it) },

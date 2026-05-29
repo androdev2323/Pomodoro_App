@@ -23,6 +23,9 @@ sealed interface HomeScreenRoutes {
     @Serializable
     data object Home : HomeScreenRoutes
 
+    @Serializable
+    data object TaskEditScreen: HomeScreenRoutes
+
 
     @Serializable
     data class Stopwatch(val id: Int) : HomeScreenRoutes {
