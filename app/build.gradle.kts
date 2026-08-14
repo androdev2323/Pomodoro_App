@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.navigation.compose)
+    implementation(libs.androidx.constraintlayout)
 
     implementation(libs.androidx.material)
 

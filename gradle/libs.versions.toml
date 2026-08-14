@@ -1,4 +1,5 @@
 [versions]
+constraintLayout = "2.2.2"
 agp = "8.11.0"
 daggerCompiler = "2.56.2"
 kotlin = "2.2.0"
@@ -55,6 +56,7 @@ lifecycle-service={group = "androidx.lifecycle", name = "lifecycle-service", ver
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 lottie = {module = "com.airbnb.android:lottie-compose", version.ref= "lottie"}
 navigation-compose = {module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose"}
+androidx-constraintlayout = {module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintLayout"}
 
 
 [plugins]

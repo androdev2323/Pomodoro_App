@@ -67,35 +67,41 @@ fun mainNavhost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                PomodoroRoutes.mainroutes.forEach() { route ->
-                    val isselected =
-                        navBackStackEntry?.destination?.route == route.routeClassname
+            if(PomodoroRoutes.mainroutes.any {
+                it.routeClassname.equals(navBackStackEntry?.destination?.route ?: "")
+            })
+            {
+                NavigationBar  {
+                    PomodoroRoutes.mainroutes.forEach() { route ->
 
-                    NavigationBarItem(
-                        selected = isselected,
-                        icon = {
-                            Icon(
-                                imageVector = if (isselected) route.selectedImage else route.unselectedImage,
-                                contentDescription = "icon"
-                            )
-                        },
-                        onClick = {
-                            navController.navigate(route.routes){
-                                popUpTo(navController.graph.findStartDestination().id){
-                                    saveState=true
+                        val isselected =
+                            navBackStackEntry?.destination?.route == route.routeClassname
+
+                        NavigationBarItem(
+                            selected = isselected,
+                            icon = {
+                                Icon(
+                                    imageVector = if (isselected) route.selectedImage else route.unselectedImage,
+                                    contentDescription = "icon"
+                                )
+                            },
+                            onClick = {
+                                navController.navigate(route.routes) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop=true
-                                restoreState = true
+                            },
+                            label = {
+                                Text(route.title)
                             }
-                        },
-                        label = {
-                            Text(route.title)
-                        }
 
-                    )
+                        )
+                    }
+
                 }
-
             }
         }
     ) {padding->

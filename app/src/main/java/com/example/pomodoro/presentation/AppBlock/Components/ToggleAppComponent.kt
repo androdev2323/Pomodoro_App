@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -49,7 +51,13 @@ import com.example.pomodoro.R
 import com.example.pomodoro.ui.theme.PomodoroTheme
 
 @Composable
-fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitmap,checked:Boolean,onCheckChanged:() -> Unit) {
+fun ToggleAppComponent(packageinfo: String,
+                       appname: String,
+                       appicon: ImageBitmap?,
+                       checked:Boolean,
+                       onCheckChanged:() -> Unit,
+                       isLoading:Boolean = false,
+) {
     Row(
         modifier = Modifier
 
@@ -60,7 +68,9 @@ fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitma
         horizontalArrangement = Arrangement.SpaceBetween
 
     ) {
-        AppIcon(appicon = appicon)
+        appicon?.let {AppIcon(appicon = appicon, modifier = Modifier.graphicsLayer {
+          
+        } ) }
         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(horizontal = 20.dp).weight(1f)) {
             Text(
                 appname,
@@ -85,16 +95,16 @@ fun ToggleAppComponent(packageinfo: String, appname: String, appicon: ImageBitma
 }
 
 @Composable
-fun AppIcon(appicon: ImageBitmap) {
+fun AppIcon(appicon: ImageBitmap,modifier: Modifier) {
     ElevatedCard(elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
-            modifier = Modifier
+            modifier = modifier
             .size(width = 50.dp, height = 50.dp)
 
     ) {
         Image(
             bitmap = appicon,
-            modifier = Modifier.size(50.dp),
+            modifier = modifier.size(50.dp),
             contentDescription = "",
             contentScale = ContentScale.Fit,
 

@@ -51,6 +51,7 @@ import com.example.pomodoro.presentation.BottomSheet.Components.AnimatedProgress
 import com.example.pomodoro.presentation.BottomSheet.Components.CustomNumberPicker
 import com.example.pomodoro.presentation.BottomSheet.Components.DatePickerEditText
 import com.example.pomodoro.presentation.BottomSheet.Components.TaskEdittext
+import com.example.pomodoro.ui.theme.PomodoroTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -158,6 +159,12 @@ fun TaskBottomSheetContent(viewmodel: TaskBottomSheetViewModel) {
     }
 
 
-
+@Preview
+@Composable
+private fun TaskBottomSheet() {
+    PomodoroTheme {
+        Task_BottomSheet(viewmodel = hiltViewModel())
+    }
+}
 
 

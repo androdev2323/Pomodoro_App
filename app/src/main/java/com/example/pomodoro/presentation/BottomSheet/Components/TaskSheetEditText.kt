@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -53,7 +54,7 @@ fun TaskEdittext(
     Column() {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.height(5.dp))
         OutlinedTextField(

@@ -3,19 +3,24 @@ package com.example.pomodoro.presentation.AppBlock.Presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pomodoro.presentation.AppBlock.Domain.Repository.InstalledPackageRepo
 import com.example.pomodoro.presentation.AppBlock.data.local.Entity.InstalledPackage
 import com.example.pomodoro.presentation.AppBlock.Domain.Repository.PackageInfoDataSourceRepo
 import com.example.pomodoro.presentation.AppBlock.data.local.Entity.AndroidPackage
+import com.example.pomodoro.presentation.StopWatch.Domain.Model.TimerState
+import com.example.pomodoro.presentation.StopWatch.Domain.Repository.TimerServiceRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,15 +30,17 @@ import javax.inject.Inject
 class AppBlockScreenViewmodel @Inject constructor(
     private val PackageInfoDataSourceRepo: PackageInfoDataSourceRepo,
     private val InstalledPackageRepo: InstalledPackageRepo,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val serviceRepo:TimerServiceRepo
 ) : ViewModel() {
      val searchQuery = savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
     private val localchanges= MutableStateFlow<Map<String, Boolean>>(emptyMap())
 
-
-
-
-
+    val timerStateEvent:SharedFlow<TimerState?> = serviceRepo.getTimerState().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = null
+    )
    private val mergedappsflow = combine(PackageInfoDataSourceRepo.getInstalledTask(),InstalledPackageRepo.getAllApps()){
             allApps,dbApps ->
        allApps.map {  app->

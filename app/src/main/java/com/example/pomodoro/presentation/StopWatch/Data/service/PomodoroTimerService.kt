@@ -16,6 +16,8 @@ import android.media.RingtoneManager
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
+import android.widget.RemoteViews
+import android.widget.RemoteViews.RemoteView
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -331,6 +333,9 @@ class PomodoroTimerService : LifecycleService() {
             pauseIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val smallContent = RemoteViews(packageName,R.layout.notification_small)
+        val bigContent = RemoteViews(packageName,R.layout.notification_large)
+
 
 
         val build = NotificationCompat.Builder(this, CHANNEL_ID)

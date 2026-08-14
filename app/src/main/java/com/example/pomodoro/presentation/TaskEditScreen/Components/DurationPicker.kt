@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,9 +29,13 @@ import com.example.pomodoro.ui.theme.PomodoroTheme
 
 
 @Composable
-fun DurationPicker(duration: List<Int>, selectedInt: Int, dialog: () -> Unit,onClick:(Int) -> Unit) {
+fun DurationPicker(duration: List<Int>, selectedInt: Int, dialog:() -> Unit, onClick:(Int) -> Unit) {
+   val lazyrowState = rememberLazyListState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     LazyRow(
+        state = lazyrowState,
         modifier = Modifier
             .height(45.dp)
             .clip(shape = RoundedCornerShape(15.dp))
@@ -53,6 +59,7 @@ fun DurationPicker(duration: List<Int>, selectedInt: Int, dialog: () -> Unit,onC
 
                     .clickable { onClick(item) },
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
 
                 ) {
 
@@ -60,7 +67,7 @@ fun DurationPicker(duration: List<Int>, selectedInt: Int, dialog: () -> Unit,onC
                     modifier = Modifier
                         .padding(
                             vertical = 6.dp,
-                            horizontal = 6.dp
+                            horizontal = 10.dp
                         )
                        ,
                     color = if (selectedInt != item) Color.Black else Color.White,

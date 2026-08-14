@@ -1,6 +1,7 @@
 package com.example.pomodoro.presentation.TaskEditScreen.Components
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,16 +31,22 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pomodoro.presentation.BottomSheet.Components.SectionBar
@@ -47,47 +54,58 @@ import com.example.pomodoro.ui.theme.PomodoroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NumberPickerBottomSheet() {
+fun NumberPickerBottomSheet(showBotomSheet:Boolean,onDismiss:(Int)->Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selectedInt by remember { mutableStateOf(1)}
+
+    LaunchedEffect(showBotomSheet) {
+        if(showBotomSheet){
+         sheetState.show()
+        }
+        else {
+            sheetState.hide()
+            onDismiss(selectedInt)
+        }
+ }
+    if (!sheetState.isVisible && !showBotomSheet) {
+        return
+    }
     ModalBottomSheet(
-        onDismissRequest = {},
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        onDismissRequest = { onDismiss(selectedInt) },
+        sheetState =sheetState,
         ) {
 
-        NumberPickerBottomSheetContent()
+        NumberPickerBottomSheetContent(
+            onSubmitClicked = { onDismiss(selectedInt)},
+            onCancelledClicked = {onDismiss(selectedInt)  },
+            onSelectionChanged = {selectedInt = it + 1})
 
     }
 }
 
 @Composable
 private fun NumberPickerBottomSheetContent(
-    numberList: List<Int> = listOf(
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-    )
+    numberList: List<Int> = listOf(1,2,3,4,5,6,7,8,9,10,11,12),
+
+    onSubmitClicked:(Int) -> Unit,
+    onCancelledClicked:() -> Unit,
+    onSelectionChanged:(Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val currentlySelectedTime by remember {  derivedStateOf {
-        val visibleWindow = lazyListState.layoutInfo.viewportSize
-        val centre = visibleWindow.height/2
+        val visibleWindow = lazyListState.layoutInfo
+        val centre =
+            (visibleWindow.viewportStartOffset + visibleWindow.viewportEndOffset) / 2
         lazyListState.layoutInfo.visibleItemsInfo.minByOrNull {
-        val itemCentre = it.offset + it.size/2
+            val itemCentre = it.offset + it.size/2
             kotlin.math.abs(centre - itemCentre)
         }?.index ?: 0
+
+    } }
+    LaunchedEffect(currentlySelectedTime) {
+           onSelectionChanged(currentlySelectedTime)
     }
 
-
-}
-    Log.d("ganesh",currentlySelectedTime.toString())
     val flingstate = rememberSnapFlingBehavior(lazyListState)
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -108,6 +126,8 @@ private fun NumberPickerBottomSheetContent(
         val itemHeight = 56.dp
         val edgePadding = (lazyColumnHeight - itemHeight) / 2
         Box {
+
+
             SectionBar(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
@@ -170,7 +190,7 @@ private fun NumberPickerBottomSheetContent(
         }
         Spacer(modifier = Modifier.height(24.dp))
         Button(
-            onClick = {},
+            onClick = { onSubmitClicked(currentlySelectedTime) },
             modifier = Modifier
                 .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 12.dp)
                 .fillMaxWidth()
@@ -181,7 +201,7 @@ private fun NumberPickerBottomSheetContent(
         }
 
         OutlinedButton(
-            onClick = {},
+            onClick = { onCancelledClicked() },
             modifier = Modifier
                 .padding( start = 24.dp, end = 24.dp, bottom = 12.dp)
                 .fillMaxWidth()
@@ -200,6 +220,9 @@ private fun NumberPickerBottomSheetContent(
 @Composable
 private fun PreviewNumberPickerBottomSheet() {
     PomodoroTheme {
-        NumberPickerBottomSheet()
+        NumberPickerBottomSheet(true,{})
     }
 }
+
+
+
